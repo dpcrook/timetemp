@@ -1,0 +1,9 @@
+
+# time 
+cd /home/pi/Adafruit-Raspberry-Pi-Python-Code/Adafruit_LEDBackpack
+sudo python ./ex_7segment_clock.py
+
+# temp
+cd /home/pi/Adafruit-Raspberry-Pi-Python-Code/Adafruit_BMP085
+sudo python Adafruit_BMP085_example_display_pachube.py
+
