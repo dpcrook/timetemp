@@ -4,7 +4,7 @@ Raspberry Pi powered time and temperature display with cloud logging.
 
 This project uses a Raspberry Pi, and some additional electronics (plus an Internet connection) to display time along with temperature. It uses a sensor that can measure temperature and air pressure.
 
-![Project picture](images/Updated_Final.jpg =489x489)
+![Project picture](/images/Updated_Final.jpg =489x489)
 
 ## my scripts
 
