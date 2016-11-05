@@ -4,7 +4,7 @@ Raspberry Pi powered time and temperature display with cloud logging.
 
 This project uses a Raspberry Pi, and some additional electronics (plus an Internet connection) to display time along with temperature. It uses a sensor that can measure temperature and air pressure.
 
-![Project picture](/images/Updated_Final.jpg =489x489)
+![Project picture](https://github.com/idcrook/timetemp/raw/master/images/Updated_Final.jpg =489x489)
 
 ## my scripts
 
@@ -38,7 +38,6 @@ Upstream
  - [I2C Level converter](https://www.adafruit.com/product/757)
  - Solderless Breadboard, wires, and [Pi Cobbler Breakout + Cable for Raspberry Pi](https://www.adafruit.com/products/914)
 
-
-![Project picture](images/AdafruitBoards.jpg =489x342) 
-![Project picture](images/7SegLEDpanels.JPG =489x489)
+![Boards and cables from Adafruit](https://github.com/idcrook/timetemp/raw/master/images/AdafruitBoards.jpg =489x342) 
+![Back of Adafruit 1.2" LED displays within custom case](https://github.com/idcrook/timetemp/raw/master/images/7SegLEDpanels.JPG =489x652)
 
