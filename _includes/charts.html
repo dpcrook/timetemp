@@ -2,7 +2,7 @@
 <script>
 
 // onload callback
-function drawChart() {
+function drawChart_Hourly() {
 
     // var public_key = 'dZ4EVmE8yGCRGx5XRX1W';
     var public_key = 'o8gab0Q996fNz2lW6gdr';
@@ -11,6 +11,7 @@ function drawChart() {
     var jsonData = $.ajax({
         url: 'https://data.sparkfun.com/output/' + public_key + '.json',
         data: {page: 1},
+        cached: true,
         dataType: 'jsonp',
     }).done(function (results) {
 
@@ -36,8 +37,12 @@ function drawChart() {
 
         var materialOptions = {
             chart: {
-                title: 'Indoor Weather Station'
+                title: 'Indoor Weather Station',
+                subtitle: 'in living room'
             },
+            
+            // explorer: true,
+            
             width: 900,
             height: 500,
             series: {
@@ -55,47 +60,14 @@ function drawChart() {
             
         };
 
-        var classicOptions = {
-            title: 'Indoor Weather Station',
-            width: 900,
-            height: 500,
-            // Gives each series an axis that matches the vAxes number below.
-            series: {
-                0: {targetAxisIndex: 0},
-                1: {targetAxisIndex: 1}
-            },
-            vAxes: {
-                // Adds titles to each axis.
-                0: {title: 'Temps (F)'},
-                1: {title: 'Pressure'}
-            },
-            // vAxis: {
-            //     viewWindow: {
-            //         max: 30
-            //     }
-            // }
-            curveType: 'function',
-            legend: { position: 'bottom' }
-            
-        };        
-        
-        // var chart = new google.visualization.LineChart($('#chart').get(0));
-        // chart.draw(data, options);
-
-        var materialChart = new google.charts.Line($('#chart').get(0));
+        var materialChart = new google.charts.Line($('#chart-hourly').get(0));
         materialChart.draw(data, materialOptions);
 
-        // var classicChart = new google.visualization.LineChart($('#chart').get(0));
-        // classicChart.draw(data, classicOptions);
 
     });
 
 }
 
 google.charts.load('current', {'packages':['line', 'corechart']});
-
-// call drawChart once google charts is loaded 
-google.charts.setOnLoadCallback(drawChart);
-
 
 </script>
