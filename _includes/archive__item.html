@@ -1,16 +1,13 @@
 <article class="item">
   <a href="{{ site.url }}{{ site.baseurl }}{{ post.url }}">
     <div class="item__content">
-      {% if post.categories contains 'mastering-paper' %}
-        <h3 class="item__title">{{ post.title | markdownify | remove: '<p>' | remove: '</p>' | remove: 'Mastering Paper by FiftyThree: ' | remove: 'Mastering Paper by 53: ' | remove: ' with Paper by FiftyThree' }}</h3>
-        {% else %}
-        <h3 class="item__title">{{ post.title | markdownify | remove: '<p>' | remove: '</p>' }}</h3>
-      {% endif %}
       <div class="item__meta">
         {% unless post.work %}
-          <span class="date published"><time datetime="{{ post.date | date: "%Y-%m-%d" }}">{{ post.date | date: "%B %d, %Y" }}</time></span>
+    
+<!--          <span class="date published"><time datetime="{{ post.date | date: "%Y-%m-%d" }}">{{ post.date | date: "%B %d, %Y" }}</time></span>
           {% assign readtime = post.content | strip_html | number_of_words | divided_by:site.words_per_minute %}
           <span class="archive__item-time"><svg class="icon"><use xlink:href="#icon-stopwatch"></use></svg>&nbsp;{% if readtime <= 1 %}1{% else %}{{ readtime }}{% endif %} min read</span>
+ -->
         {% else %}
           <span><svg class="icon"><use xlink:href="#icon-folder"></use></svg>&nbsp;{{ post.work | markdownify | remove: '<p>' | remove: '</p>' }}</span>
         {% endunless %}
