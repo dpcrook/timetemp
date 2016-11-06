@@ -2,9 +2,12 @@
 
 Raspberry Pi powered time and temperature display with cloud logging.
 
-This project uses a Raspberry Pi, and some additional electronics (plus an Internet connection) to display time along with temperature. It uses a sensor that can measure temperature and air pressure.
+**UPDATED** (05-Nov-2016): Added pointer to [Porting indoor weather (BMP085) logging project to SFE Phant](http://github.crookster.org/Moving-Indoor-Weather-Logging-To-Phant/) blog entry.
 
 <img src="https://github.com/idcrook/timetemp/raw/master/images/Updated_Final.jpg" alt="Project picture" width="489" height="489" />
+
+This project uses a Raspberry Pi, and some additional electronics (plus an Internet connection) to display time along with temperature. It uses a sensor that can measure temperature and air pressure.
+
 
 
 ## my scripts
