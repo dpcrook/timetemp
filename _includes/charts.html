@@ -17,34 +17,85 @@ function drawChart() {
         var data = new google.visualization.DataTable();
 
         data.addColumn('datetime', 'Time');
-        data.addColumn('number', 'Temp');
-        data.addColumn('number', 'Pressure (mm / 10)');
+        data.addColumn('number', 'Temp (F)');
+        data.addColumn('number', 'Pressure (mm)');
 
         $.each(results, function (i, row) {
             data.addRow([
                 (new Date(row.timestamp)),
                 parseFloat(row.ambient_temperature_f),
-                parseFloat(row.ambient_pressure) / 10.0
+                parseFloat(row.ambient_pressure) 
             ]);
         });
 
-        var chart = new google.visualization.LineChart($('#chart').get(0));
+        var options = {
+            title: 'Indoor Weather Station',
+            curveType: 'function',
+            legend: { position: 'bottom' }
+        };
 
-        chart.draw(data, {
-            title: 'Indoor Weather Station'
-        });
+        var materialOptions = {
+            chart: {
+                title: 'Indoor Weather Station'
+            },
+            width: 900,
+            height: 500,
+            series: {
+                // Gives each series an axis name that matches the Y-axis below.
+                0: {axis: 'Temps'},
+                1: {axis: 'Pressure'}
+            },
+            axes: {
+                // Adds labels to each axis; they don't have to match the axis names.
+                y: {
+                    Temps: {label: 'Temps (F)'},
+                    Daylight: {label: 'Ambient Pressure'}
+                }
+            }
+            
+        };
+
+        var classicOptions = {
+            title: 'Indoor Weather Station',
+            width: 900,
+            height: 500,
+            // Gives each series an axis that matches the vAxes number below.
+            series: {
+                0: {targetAxisIndex: 0},
+                1: {targetAxisIndex: 1}
+            },
+            vAxes: {
+                // Adds titles to each axis.
+                0: {title: 'Temps (F)'},
+                1: {title: 'Pressure'}
+            },
+            // vAxis: {
+            //     viewWindow: {
+            //         max: 30
+            //     }
+            // }
+            curveType: 'function',
+            legend: { position: 'bottom' }
+            
+        };        
+        
+        // var chart = new google.visualization.LineChart($('#chart').get(0));
+        // chart.draw(data, options);
+
+        var materialChart = new google.charts.Line($('#chart').get(0));
+        materialChart.draw(data, materialOptions);
+
+        // var classicChart = new google.visualization.LineChart($('#chart').get(0));
+        // classicChart.draw(data, classicOptions);
 
     });
 
 }
 
-// load chart lib
-google.load('visualization', '1', {
-    packages: ['corechart']
-});
+google.charts.load('current', {'packages':['line', 'corechart']});
 
 // call drawChart once google charts is loaded 
-google.setOnLoadCallback(drawChart);
+google.charts.setOnLoadCallback(drawChart);
 
 
 </script>
