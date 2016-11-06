@@ -16,6 +16,7 @@ baseurl                  : "/timetemp" # the subpath of your site, e.g. "/blog"
 repository               : "idcrook/timetemp" # GitHub username/repo-name e.g. "mmistakes/minimal-mistakes"
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
 # breadcrumbs            : false # true, false (default)
+theme: minimal-mistakes-jekyll
 words_per_minute         : 200
 comments:
   provider               : # false (default), "disqus", "discourse", "facebook", "google-plus", "staticman", "custom"
@@ -79,8 +80,8 @@ analytics:
 author:
   name             : "David Crook"
   avatar           : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
-  bio              : "I am an amazing person."
-  location         : "Somewhere"
+  bio              : "TimeTemp charts"
+  location         : "Colorado"
   email            :
   uri              :
   bitbucket        :
@@ -89,7 +90,7 @@ author:
   flickr           :
   facebook         :
   foursquare       :
-  github           :
+  github           : "idcrook/timetemp"
   google_plus      :
   keybase          :
   instagram        :
@@ -231,8 +232,6 @@ compress_html:
     envs: development
 
     
-theme: minimal-mistakes-jekyll
-
 # Defaults
 defaults:
   # _posts
@@ -246,3 +245,14 @@ defaults:
       comments: # true
       share: true
       related: true
+  # Blog Articles
+  - scope:
+      path: _posts/charts
+      type: posts
+    values:
+      layout: page
+      category: charts
+      read_time: true
+      breadcrumbs:
+        - label: "Charts"
+          url: /charts/      
