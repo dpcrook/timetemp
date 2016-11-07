@@ -1,201 +1,75 @@
 <!-- EXAMPLE SCRIPT -->
 <script>
 
-// var public_key = 'dZ4EVmE8yGCRGx5XRX1W';
-var public_key = 'o8gab0Q996fNz2lW6gdr';
 
+function creata_drawChart(dataQueryStr, divElemName) {
 
-// onload callback
-function drawChart_Hourly() {
+    // Stream public key
+    var public_key = 'o8gab0Q996fNz2lW6gdr';
 
-    // JSONP request
-    var jsonData = $.ajax({
-        url: 'https://data.sparkfun.com/output/' + public_key + '.json',
-        data: {page: 1},
-        cached: true,
-        dataType: 'jsonp',
-    }).done(function (results) {
+    var aDrawChart = function drawChart() {
 
-        var data = new google.visualization.DataTable();
+        console.log(dataQueryStr + ' ' + divElemName);
+        
+        // JSONP request
+        var jsonData = $.ajax({
+            url: 'https://data.sparkfun.com/output/' + public_key + '.json' + dataQueryStr,
+            //        data: {page: 1},
+            cached: true,
+            dataType: 'jsonp',
+        }).done(function (results) {
 
-        data.addColumn('datetime', 'Time');
-        data.addColumn('number', 'Temp (F)');
-        data.addColumn('number', 'Pressure (mm)');
+            var data = new google.visualization.DataTable();
 
-        $.each(results, function (i, row) {
-            data.addRow([
-                (new Date(row.timestamp)),
-                parseFloat(row.ambient_temperature_f),
-                parseFloat(row.ambient_pressure) 
-            ]);
-        });
+            data.addColumn('datetime', 'Time');
+            data.addColumn('number', 'Temp (F)');
+            data.addColumn('number', 'Pressure (mm)');
 
-        var options = {
-            title: 'Indoor Weather Station',
-            curveType: 'function',
-            legend: { position: 'bottom' }
-        };
+            $.each(results, function (i, row) {
+                data.addRow([
+                    (new Date(row.timestamp)),
+                    parseFloat(row.ambient_temperature_f),
+                    parseFloat(row.ambient_pressure) 
+                ]);
+            });
 
-        var materialOptions = {
-            chart: {
+            var options = {
                 title: 'Indoor Weather Station',
-                subtitle: 'in living room'
-            },
-            
-            // explorer: true,
-            
-            width: 900,
-            height: 500,
-            series: {
-                // Gives each series an axis name that matches the Y-axis below.
-                0: {axis: 'Temps'},
-                1: {axis: 'Pressure'}
-            },
-            axes: {
-                // Adds labels to each axis; they don't have to match the axis names.
-                y: {
-                    Temps: {label: 'Temps (F)'},
-                    Daylight: {label: 'Ambient Pressure'}
+                curveType: 'function',
+                legend: { position: 'bottom' }
+            };
+
+            var materialOptions = {
+                chart: {
+                    title: 'Indoor Weather Station',
+                    subtitle: 'in living room'
+                },
+                
+                // explorer: true,
+                
+                width: 900,
+                height: 500,
+                series: {
+                    // Gives each series an axis name that matches the Y-axis below.
+                    0: {axis: 'Temps'},
+                    1: {axis: 'Pressure'}
+                },
+                axes: {
+                    // Adds labels to each axis; they don't have to match the axis names.
+                    y: {
+                        Temps: {label: 'Temps (F)'},
+                        Daylight: {label: 'Ambient Pressure'}
+                    }
                 }
-            }
-            
-        };
+                
+            };
 
-        var materialChart = new google.charts.Line($('#chart-hourly').get(0));
-        materialChart.draw(data, materialOptions);
-
-
-    });
-
-}
-
-function drawChart_Weekly() {
-
-    // JSONP request
-    var jsonData = $.ajax({
-        url: 'https://data.sparkfun.com/output/' + public_key + '.json' + '?' + 'limit=150&sample=15',
-        //data: {page: 1},
-        cached: true,
-        dataType: 'jsonp',
-    }).done(function (results) {
-
-        var data = new google.visualization.DataTable();
-
-        data.addColumn('datetime', 'Time');
-        data.addColumn('number', 'Temp (F)');
-        data.addColumn('number', 'Pressure (mm)');
-
-        $.each(results, function (i, row) {
-            data.addRow([
-                (new Date(row.timestamp)),
-                parseFloat(row.ambient_temperature_f),
-                parseFloat(row.ambient_pressure) 
-            ]);
+            var materialChart = new google.charts.Line($('#' + divElemName).get(0));
+            materialChart.draw(data, materialOptions);
         });
+    }
 
-        var options = {
-            title: 'Indoor Weather Station',
-            curveType: 'function',
-            legend: { position: 'bottom' }
-        };
-
-        var materialOptions = {
-            chart: {
-                title: 'Indoor Weather Station',
-                subtitle: 'in living room'
-            },
-            
-            // explorer: true,
-            
-            width: 900,
-            height: 500,
-            series: {
-                // Gives each series an axis name that matches the Y-axis below.
-                0: {axis: 'Temps'},
-                1: {axis: 'Pressure'}
-            },
-            axes: {
-                // Adds labels to each axis; they don't have to match the axis names.
-                y: {
-                    Temps: {label: 'Temps (F)'},
-                    Daylight: {label: 'Ambient Pressure'}
-                }
-            }
-            
-        };
-
-        var materialChart = new google.charts.Line($('#chart').get(0));
-        materialChart.draw(data, materialOptions);
-
-
-    });
-
-}
-
-var queryStr = '';
-
-function drawChart() {
-
-    console.log(queryStr);
-    // JSONP request
-    var jsonData = $.ajax({
-        url: 'https://data.sparkfun.com/output/' + public_key + '.json' + queryStr,
-//        data: {page: 1},
-        cached: true,
-        dataType: 'jsonp',
-    }).done(function (results) {
-
-        var data = new google.visualization.DataTable();
-
-        data.addColumn('datetime', 'Time');
-        data.addColumn('number', 'Temp (F)');
-        data.addColumn('number', 'Pressure (mm)');
-
-        $.each(results, function (i, row) {
-            data.addRow([
-                (new Date(row.timestamp)),
-                parseFloat(row.ambient_temperature_f),
-                parseFloat(row.ambient_pressure) 
-            ]);
-        });
-
-        var options = {
-            title: 'Indoor Weather Station',
-            curveType: 'function',
-            legend: { position: 'bottom' }
-        };
-
-        var materialOptions = {
-            chart: {
-                title: 'Indoor Weather Station',
-                subtitle: 'in living room'
-            },
-            
-            // explorer: true,
-            
-            width: 900,
-            height: 500,
-            series: {
-                // Gives each series an axis name that matches the Y-axis below.
-                0: {axis: 'Temps'},
-                1: {axis: 'Pressure'}
-            },
-            axes: {
-                // Adds labels to each axis; they don't have to match the axis names.
-                y: {
-                    Temps: {label: 'Temps (F)'},
-                    Daylight: {label: 'Ambient Pressure'}
-                }
-            }
-            
-        };
-
-        var materialChart = new google.charts.Line($('#chart').get(0));
-        materialChart.draw(data, materialOptions);
-
-
-    });
-
+    return aDrawChart;
 }
 
 google.charts.load('current', {'packages':['line', 'corechart']});
