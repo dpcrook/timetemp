@@ -1,0 +1,16 @@
+
+:public-key = o8gab0Q996fNz2lW6gdr
+:dataphant = https://data.sparkfun.com/output/:public-key.json
+
+## limit 10, sample 4
+GET :dataphant?limit=10&sample=4
+
+## limit 90, sample 12 (5 * 12 = 60 minutes)
+GET :dataphant?limit=90&sample=12
+
+
+# Local Variables:
+# mode: restclient
+# outline-regexp: "#+"
+# eval: (outline-minor-mode)
+# End:
