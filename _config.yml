@@ -258,3 +258,15 @@ defaults:
       breadcrumbs:
         - label: "Charts"
           url: /charts/      
+  # Project
+  - scope:
+      path: _posts/project
+      type: posts
+    values:
+      layout: archive
+      author_profile: true
+      category: project
+      read_time: true
+      breadcrumbs:
+        - label: "Project"
+          url: /project/      
