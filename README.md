@@ -8,6 +8,11 @@ Raspberry Pi powered time and temperature display with cloud logging.
 
 This project uses a Raspberry Pi, and some additional electronics (plus an Internet connection) to display time along with temperature. It uses a sensor that can measure temperature and air pressure.
 
+<img src="https://github.com/idcrook/timetemp/raw/master/images/BreadboardWiring_fritzing.png" alt="Breadboard wiring" width="434" height="277" /> <img src="https://github.com/idcrook/timetemp/raw/master/images/Schematic_fritzing.png" alt="Schematic wiring" width="330" height="215" />
+
+ - [Fritzing source file](https://github.com/idcrook/timetemp/raw/master/src/timetemp_sketch.fzz) ([Fritzing app](http://fritzing.org/home/))
+
+
 
 
 ## my scripts
