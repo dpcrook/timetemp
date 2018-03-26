@@ -2,7 +2,7 @@
 
 Raspberry Pi powered time and temperature display with cloud logging.
 
-**UPDATED** (25-Mar-201 ): Added most recent code and explicit dependencies as git submodules. See [Build.md](install/Build.md)
+**UPDATED** (25-Mar-2018): Added most recent code and explicit dependencies as git submodules. See [Build.md](install/Build.md)
 
 **UPDATED** (05-Nov-2016): Added pointer to [Porting indoor weather (BMP085) logging project to SFE Phant](http://github.crookster.org/Moving-Indoor-Weather-Logging-To-Phant/) blog entry.
 
