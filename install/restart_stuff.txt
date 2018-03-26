@@ -1,0 +1,13 @@
+cd /home/pi/projects/timetemp/install/
+screen -R
+
+# time
+
+cd /home/pi/projects/timetemp/install/
+sudo python ./my_7segment_clock.py
+
+# temp
+
+cd /home/pi/projects/timetemp/install/
+sudo python ./logging_sparkfun.py || date
+
