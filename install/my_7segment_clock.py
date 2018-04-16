@@ -13,6 +13,10 @@ import sys
 # ===========================================================================
 # Clock Example
 # ===========================================================================
+
+# Set to 12 or 24 hour mode
+HOUR_MODE_12_OR_24 = 12
+
 segment = SevenSegment.SevenSegment(address=0x70)
 #segment = SevenSegment.SevenSegment(address=0x71)
 
@@ -34,6 +38,12 @@ while (True):
         second = now.second
 
         segment.clear()
+
+        if HOUR_MODE_12_OR_24 != 24:
+            if hour > 12:  # handle 13 through 23
+                hour = hour - 12
+            if hour == 0:  # handle 0 (hour of midnight)
+                hour = 12
 
         # Set hours
         if hour >= 10 or hour == 0:  # Tens
