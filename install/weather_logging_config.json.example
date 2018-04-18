@@ -1,0 +1,11 @@
+{
+  "i2c_addresses":
+  {
+    "bmp085": "0x77",
+    "i2c_led": "0x70"
+  },
+  "darksky":
+  {
+    "secret-key": "abcd"
+  }
+}
