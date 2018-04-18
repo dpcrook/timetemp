@@ -29,6 +29,10 @@ cd python-phant/
 sudo python setup.py install
 cd ..
 
+sudo pip install --upgrade pip
+
+# https://github.com/ZeevG/python-forecast.io for Dark Sky API
+sudo pip install python-forecastio
 ```
 
 ## Test run

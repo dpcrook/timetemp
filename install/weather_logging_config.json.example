@@ -6,6 +6,8 @@
   },
   "darksky":
   {
-    "secret-key": "abcd"
+    "secret-key": "abcd",
+    "lat":  45.0000,
+    "lng": -100.0000
   }
 }

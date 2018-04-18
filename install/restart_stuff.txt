@@ -9,5 +9,4 @@ sudo python ./my_7segment_clock.py
 # temp
 
 cd /home/pi/projects/timetemp/install/
-sudo python ./logging_sparkfun.py || date
-
+sudo python ./weather_logging_sparkfun.py || date

@@ -14,35 +14,47 @@ import ssl
 
 import Adafruit_BMP.BMP085 as BMP085
 from Adafruit_LED_Backpack.SevenSegment import SevenSegment
-
 from phant import Phant
 
-LOGGING = True
-LOGGING = False
-COUNT = 0
+# https://github.com/ZeevG/python-forecast.io
+import forecastio
 
-# How long to wait (in seconds) between measurements.
-FREQUENCY_SECONDS = 300
+# Logging sensor readings to Phant
+LOGGING = True
+#LOGGING = False
+LOGGING_COUNT = 0
+
+# Use Dark Sky API for local weather - https://darksky.net/dev/docs
+DARK_SKY_WEATHER_API = True
+#DARK_SKY_WEATHER_API = False
+
+# How long to wait (in seconds) between logging measurements.
+FREQUENCY_SECONDS = 300L
 
 # How long to wait (in seconds) to display F or C.
-ALTERNATE_TEMP_SCALE_SECONDS = 5
+ALTERNATE_TEMP_SCALE_SECONDS = 5L
 
 # Approximately how often measurements are made (in seconds)
 MEASUREMENT_INTERVAL = 2 * ALTERNATE_TEMP_SCALE_SECONDS
 
-# How seldom to upload the sensor data, if LOGGING is on
+# How seldom to upload the sensor log data, if LOGGING is on
 COUNT_INTERVAL = FREQUENCY_SECONDS / MEASUREMENT_INTERVAL
+
+# Additional characters for 7 segment display
+RAW_DIGIT_VALUES = {
+    'outdoor_degrees': 0x6b,
+    '°': 0x63,
+}
 
 # Read in config file
 with open('weather_logging_config.json') as config_file:
     config = json.loads(config_file.read())
-
 #pprint(config)
 
 
-# Add error and exception handling
 def convert_json_string_to_hexadecimal_value(s):
     value = 0
+    # TODO: Add error and exception handling
     try:
         value = int(s, 16)
     except:
@@ -54,8 +66,12 @@ bmp_address = convert_json_string_to_hexadecimal_value(
     config["i2c_addresses"]["bmp085"])
 led_display_address = convert_json_string_to_hexadecimal_value(
     config["i2c_addresses"]["i2c_led"])
-print(bmp_address)
-print(led_display_address)
+#print(bmp_address)
+#print(led_display_address)
+secret_key = config["darksky"]["secret-key"]
+lat = config["darksky"]["lat"]
+lng = config["darksky"]["lng"]
+#print(lat, lng)
 
 # Create sensor instance with default I2C bus
 bmp = BMP085.BMP085(mode=BMP085.BMP085_HIGHRES, address=bmp_address)
@@ -72,7 +88,38 @@ if LOGGING:
     print(
         'Logging sensor measurements taken every {2} seconds to "{0}" every {1} seconds.'
     ).format(p2.title, FREQUENCY_SECONDS, MEASUREMENT_INTERVAL)
-    print(p2)
+    #print(p2)
+
+# Initialize 'currently'
+if DARK_SKY_WEATHER_API:
+    forecast = forecastio.load_forecast(secret_key, lat, lng)
+    print(forecast.http_headers['X-Forecast-API-Calls'], ' API calls')
+    currently = forecast.currently()
+    print(currently.summary)
+    print(currently.time)
+    print(currently.temperature)
+
+
+def display_temperature_in_fahrenheit(led_display, temperature, outdoorQ):
+    segment = led_display
+    if round(temperature * 10.0) < 1000.0:
+        segment.set_digit(0, int(round(temperature) / 10))  # Tens
+        segment.set_digit(1, int(round(temperature) % 10))  # Ones
+        if outdoorQ:
+            segment.set_digit_raw(2, RAW_DIGIT_VALUES['outdoor_degrees'])
+            segment.set_digit(3, 'F')
+        else:
+            segment.set_digit_raw(2, RAW_DIGIT_VALUES['°'])
+            segment.set_digit(3, 'F')
+
+        segment.set_colon(False)
+    else:
+        segment.set_digit(0, int(round(temperature) / 100))  # Hundreds
+        segment.set_digit(1, int(round(temperature - 100.0) / 10))  # Tens
+        segment.set_digit(2, int(round(temperature) % 10))  # Ones
+        segment.set_digit(3, 'F')
+        segment.set_colon(False)
+
 
 print('Press Ctrl-C to quit.')
 
@@ -97,34 +144,18 @@ while True:
         print("Press CTRL+C to exit")
         print("")
 
-        for display_tmp_in_F in [False, True]:
+        for display_indoor_temp_in_F in [False, True]:
 
-            if display_tmp_in_F:
-
-                if round(temp_in_F * 10.0) < 1000.0:
-                    segment.set_digit(0, int(round(temp_in_F) / 10))  # Tens
-                    segment.set_digit(1, int(round(temp_in_F) % 10))  # Ones
-                    segment.set_digit(2, int(
-                        int(round(temp_in_F * 10.0)) % 10))  # Tenth
-                    segment.set_digit(3, 'F')
-                    segment.set_colon(True)
-                else:
-                    segment.set_digit(0,
-                                      int(round(temp_in_F) / 100))  # Hundreds
-                    segment.set_digit(1, int(
-                        round(temp_in_F - 100.0) / 10))  # Tens
-                    segment.set_digit(2, int(round(temp_in_F) % 10))  # Ones
-                    segment.set_digit(3, 'F')
-                    segment.set_colon(False)
-
+            if display_indoor_temp_in_F:
+                display_temperature_in_fahrenheit(segment, temp_in_F, False)
             else:
-                # write degrees
-                segment.set_digit(0, int(round(temp) / 10))  # Tens
-                segment.set_digit(1, int(round(temp) % 10))  # Ones
-                segment.set_digit(2,
-                                  int(int(round(temp * 10.0)) % 10))  # Tenth
-                segment.set_digit(3, 'C')
-                segment.set_colon(True)
+                if DARK_SKY_WEATHER_API:
+                    outside_temperature = currently.temperature
+                    display_temperature_in_fahrenheit(
+                        segment, outside_temperature, True)
+                else:
+                    display_temperature_in_fahrenheit(segment, temp_in_F,
+                                                      False)
 
             segment.write_display()
 
@@ -140,17 +171,27 @@ while True:
                       altitude)
             print(fields)
 
-            if (COUNT % COUNT_INTERVAL) == 0:
+            if (LOGGING_COUNT % COUNT_INTERVAL) == 0:
                 p2.log(altitude, ambient_pressure, ambient_temp_C,
                        ambient_temp_F)
                 print('Wrote a row to {0}'.format(p2.title))
                 print((p2.remaining_bytes, p2.cap))
+
+                # Use same interval as logging to request darksky API
+                if DARK_SKY_WEATHER_API:
+                    forecast = forecastio.load_forecast(secret_key, lat, lng)
+                    currently = forecast.currently()
+                    print("DarkSky API:")
+                    print(forecast.http_headers['X-Forecast-API-Calls'])
+                    print(currently.time)
+                    print(currently.temperature)
+
             else:
                 print('at {0} seconds out of {1}'.format(
-                    (COUNT * MEASUREMENT_INTERVAL) % FREQUENCY_SECONDS,
+                    (LOGGING_COUNT * MEASUREMENT_INTERVAL) % FREQUENCY_SECONDS,
                     FREQUENCY_SECONDS))
 
-        COUNT = COUNT + 1
+        LOGGING_COUNT = LOGGING_COUNT + 1
 
     except KeyboardInterrupt:
         segment.clear()
