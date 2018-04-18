@@ -33,32 +33,14 @@ MEASUREMENT_INTERVAL = 2 * ALTERNATE_TEMP_SCALE_SECONDS
 # How seldom to upload the sensor data, if LOGGING is on
 COUNT_INTERVAL = FREQUENCY_SECONDS / MEASUREMENT_INTERVAL
 
-# Create sensor instance with default I2C bus
-bmp = BMP085.BMP085(mode=BMP085.BMP085_HIGHRES, address=0x77)
-
-# Initialize a LED display
-segment = SevenSegment(address=0x70)
-#segment = SevenSegment(address=0x71)
-print(segment)
-
-# Read in Phant config
-if LOGGING:
-    json_keys_file2 = 'data.crookster.org.json'
-    p2 = Phant(jsonPath=json_keys_file2)
-
-    print(
-        'Logging sensor measurements taken every {2} seconds to "{0}" every {1} seconds.'
-    ).format(p2.title, FREQUENCY_SECONDS, MEASUREMENT_INTERVAL)
-    print(p2)
-
-print('Press Ctrl-C to quit.')
-
+# Read in config file
 with open('weather_logging_config.json') as config_file:
     config = json.loads(config_file.read())
 
-pprint(config)
+#pprint(config)
 
 
+# Add error and exception handling
 def convert_json_string_to_hexadecimal_value(s):
     value = 0
     try:
@@ -75,7 +57,24 @@ led_display_address = convert_json_string_to_hexadecimal_value(
 print(bmp_address)
 print(led_display_address)
 
-raise SystemExit
+# Create sensor instance with default I2C bus
+bmp = BMP085.BMP085(mode=BMP085.BMP085_HIGHRES, address=bmp_address)
+
+# Initialize a LED display
+segment = SevenSegment(address=led_display_address)
+print(segment)
+
+# Read in Phant config
+if LOGGING:
+    json_keys_file2 = 'data.crookster.org.json'
+    p2 = Phant(jsonPath=json_keys_file2)
+
+    print(
+        'Logging sensor measurements taken every {2} seconds to "{0}" every {1} seconds.'
+    ).format(p2.title, FREQUENCY_SECONDS, MEASUREMENT_INTERVAL)
+    print(p2)
+
+print('Press Ctrl-C to quit.')
 
 while True:
 
@@ -91,10 +90,10 @@ while True:
         temp_in_F = (temp * 9.0 / 5.0) + 32.0
 
         print("BMP Sensor")
-        print("  Temp(°C): %.1f C" % temp)
-        print("  Temp(°F): %.1f F" % temp_in_F)
-        print("Pressure:    %.2f hPa" % (pressure / 100.0))
-        print("Altitude:    %.2f m" % altitude)
+        print("  Temp(°C): %.1f°C" % temp)
+        print("  Temp(°F): %.1f°F" % temp_in_F)
+        print("  Pressure: %.1f hPa" % (pressure / 100.0))
+        print("  Altitude: %.1f m" % altitude)
         print("Press CTRL+C to exit")
         print("")
 
