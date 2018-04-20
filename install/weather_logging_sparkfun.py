@@ -15,7 +15,8 @@ import ssl
 import Adafruit_BMP.BMP085 as BMP085
 from Adafruit_LED_Backpack.SevenSegment import SevenSegment
 from phant import Phant
-
+# https://github.com/jkoelker/python-nest/
+import nest
 # https://github.com/ZeevG/python-forecast.io
 import forecastio
 
@@ -28,6 +29,10 @@ LOGGING_COUNT = 0
 DARK_SKY_WEATHER_API = True
 #DARK_SKY_WEATHER_API = False
 
+# Use Nest API for another indoor temperature source
+NEST_API = True
+#NEST_API = False
+
 # How long to wait (in seconds) between logging measurements.
 FREQUENCY_SECONDS = 300L
 
@@ -35,13 +40,14 @@ FREQUENCY_SECONDS = 300L
 ALTERNATE_TEMP_SCALE_SECONDS = 5L
 
 # Approximately how often measurements are made (in seconds)
-MEASUREMENT_INTERVAL = 2 * ALTERNATE_TEMP_SCALE_SECONDS
+MEASUREMENT_INTERVAL = 3 * ALTERNATE_TEMP_SCALE_SECONDS
 
 # How seldom to upload the sensor log data, if LOGGING is on
 COUNT_INTERVAL = FREQUENCY_SECONDS / MEASUREMENT_INTERVAL
 
 # Additional characters for 7 segment display
 RAW_DIGIT_VALUES = {
+    'tickmark': 0x02,
     'outdoor_degrees': 0x6b,
     '°': 0x63,
 }
@@ -72,6 +78,9 @@ secret_key = config["darksky"]["secret-key"]
 lat = config["darksky"]["lat"]
 lng = config["darksky"]["lng"]
 #print(lat, lng)
+nest_client_id = config['timetemp_nest']['client_id']
+nest_client_secret = config['timetemp_nest']['client_secret']
+nest_access_token_cache_file = 'nest.json'
 
 # Create sensor instance with default I2C bus
 bmp = BMP085.BMP085(mode=BMP085.BMP085_HIGHRES, address=bmp_address)
@@ -99,17 +108,41 @@ if DARK_SKY_WEATHER_API:
     print(currently.time)
     print(currently.temperature)
 
+# Initialize 'napi' and 'nest_temperature'
+if NEST_API:
+    napi = nest.Nest(
+        client_id=nest_client_id,
+        client_secret=nest_client_secret,
+        access_token_cache_file=nest_access_token_cache_file)
 
-def display_temperature_in_fahrenheit(led_display, temperature, outdoorQ):
+    if napi.authorization_required:
+        print('Authorization required.  Run "python ./nest_access.py"')
+        raise SystemExit
+
+    for structure in napi.structures:
+        print('Structure %s' % structure.name)
+        print('    Away: %s' % structure.away)
+        print('    Devices:')
+
+        for device in structure.thermostats:
+            print('        Device: %s' % device.name)
+            print('            Temp: %0.1f' % device.temperature)
+            nest_temperature = device.temperature
+
+
+def display_temperature_in_fahrenheit(led_display, temperature, where):
     segment = led_display
     if round(temperature * 10.0) < 1000.0:
         segment.set_digit(0, int(round(temperature) / 10))  # Tens
         segment.set_digit(1, int(round(temperature) % 10))  # Ones
-        if outdoorQ:
+        if where == 'outdoor':
             segment.set_digit_raw(2, RAW_DIGIT_VALUES['outdoor_degrees'])
             segment.set_digit(3, 'F')
-        else:
+        elif where == 'nest':
             segment.set_digit_raw(2, RAW_DIGIT_VALUES['°'])
+            segment.set_digit(3, 'F')
+        else:
+            segment.set_digit_raw(2, RAW_DIGIT_VALUES['tickmark'])
             segment.set_digit(3, 'F')
 
         segment.set_colon(False)
@@ -144,18 +177,27 @@ while True:
         print("Press CTRL+C to exit")
         print("")
 
-        for display_indoor_temp_in_F in [False, True]:
+        for temp_where in ['outdoor', 'sensor', 'nest']:
 
-            if display_indoor_temp_in_F:
-                display_temperature_in_fahrenheit(segment, temp_in_F, False)
-            else:
+            if temp_where == 'sensor':
+                display_temperature_in_fahrenheit(segment, temp_in_F,
+                                                  temp_where)
+            elif temp_where == 'outdoor':
                 if DARK_SKY_WEATHER_API:
                     outside_temperature = currently.temperature
                     display_temperature_in_fahrenheit(
-                        segment, outside_temperature, True)
+                        segment, outside_temperature, temp_where)
                 else:
                     display_temperature_in_fahrenheit(segment, temp_in_F,
-                                                      False)
+                                                      'sensor')
+            elif temp_where == 'nest':
+                if NEST_API:
+                    indoor_temperature = nest_temperature
+                    display_temperature_in_fahrenheit(
+                        segment, indoor_temperature, temp_where)
+                else:
+                    display_temperature_in_fahrenheit(segment, temp_in_F,
+                                                      'sensor')
 
             segment.write_display()
 
@@ -185,6 +227,25 @@ while True:
                     print(forecast.http_headers['X-Forecast-API-Calls'])
                     print(currently.time)
                     print(currently.temperature)
+
+                # Use same interval as logging to request Nest API
+                if NEST_API:
+                    napi = nest.Nest(
+                        client_id=nest_client_id,
+                        client_secret=nest_client_secret,
+                        access_token_cache_file=nest_access_token_cache_file)
+
+                    if napi.authorization_required:
+                        print(
+                            'Authorization required.  Run "python ./nest_access.py"'
+                        )
+                        raise SystemExit
+
+                    for structure in napi.structures:
+                        for device in structure.thermostats:
+                            nest_temperature = device.temperature
+                            print('Nest temperature: {0}'.format(
+                                nest_temperature))
 
             else:
                 print('at {0} seconds out of {1}'.format(

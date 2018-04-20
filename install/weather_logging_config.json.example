@@ -9,5 +9,10 @@
     "secret-key": "abcd",
     "lat":  45.0000,
     "lng": -100.0000
+  },
+  "timetemp_nest":
+  {
+    "client_id": "d-e-4f-i",
+    "client_secret": "yturkd7"
   }
 }

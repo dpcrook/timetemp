@@ -33,6 +33,11 @@ sudo pip install --upgrade pip
 
 # https://github.com/ZeevG/python-forecast.io for Dark Sky API
 sudo pip install python-forecastio
+
+# https://github.com/jkoelker/python-nest/ for Nest thermostat
+sudo pip install python-nest
+
+
 ```
 
 ## Test run
