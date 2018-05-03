@@ -102,7 +102,8 @@ if LOGGING:
 # Initialize 'currently'
 if DARK_SKY_WEATHER_API:
     forecast = forecastio.load_forecast(secret_key, lat, lng)
-    print(forecast.http_headers['X-Forecast-API-Calls'], ' API calls')
+    if 'X-Forecast-API-Calls' in forecast.http_headers:
+        print(forecast.http_headers['X-Forecast-API-Calls'], ' API calls')
     currently = forecast.currently()
     print(currently.summary)
     print(currently.time)
@@ -224,7 +225,8 @@ while True:
                     forecast = forecastio.load_forecast(secret_key, lat, lng)
                     currently = forecast.currently()
                     print("DarkSky API:")
-                    print(forecast.http_headers['X-Forecast-API-Calls'])
+                    if 'X-Forecast-API-Call' in forecast.http_headers:
+                        print(forecast.http_headers['X-Forecast-API-Calls'])
                     print(currently.time)
                     print(currently.temperature)
 
