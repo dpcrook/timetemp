@@ -215,10 +215,14 @@ while True:
             print(fields)
 
             if (LOGGING_COUNT % COUNT_INTERVAL) == 0:
-                p2.log(altitude, ambient_pressure, ambient_temp_C,
-                       ambient_temp_F)
-                print('Wrote a row to {0}'.format(p2.title))
-                print((p2.remaining_bytes, p2.cap))
+                try:
+                    p2.log(altitude, ambient_pressure, ambient_temp_C,
+                           ambient_temp_F)
+                    print('Wrote a row to {0}'.format(p2.title))
+                    print((p2.remaining_bytes, p2.cap))
+                except ValueError:
+                    print('-E- Error logging to {}'.format(p2.title))
+                    print('-W- Is phant server down?')
 
                 # Use same interval as logging to request darksky API
                 if DARK_SKY_WEATHER_API:
