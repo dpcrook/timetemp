@@ -223,10 +223,20 @@ while True:
                 except ValueError:
                     print('-E- Error logging to {}'.format(p2.title))
                     print('-W- Is phant server down?')
-                # except requests.exceptions.ConnectionError:
-                #     print('-E- Error connecting to server for {}'.format(
-                #         p2.title))
-                #     print('-W- Is phant server down?')
+                    if 'ValueError' not in error_tables:
+                        error_tables['ValueError'] = 1
+                    else:
+                        error_tables['ValueError'] += 1
+                # raise ConnectionError(e, request=request)
+#requests.exceptions.ConnectionError: HTTPSConnectionPool(host='data.crookster.org', port=443): Max retries exceeded with url: /input/zb40GXNBOoCZwyvyGX6vS4NBago.json?tf=67.46&private_key=5qmAlvwLb3UXZM5M0DL5HdamVxn&alt=1470.383813622594&pres=848.65&tc=19.7 (Caused by NewConnectionError('<requests.packages.urllib3.connection.VerifiedHTTPSConnection object at 0xb63b7310>: Failed to establish a new connection: [Errno -3] Temporary failure in name resolution',))
+                except ConnectionError:
+                    print('-E- Error connecting to server for {}'.format(
+                        p2.title))
+                    print('-W- Is network down?')
+                    if 'ConnectionError' not in error_tables:
+                        error_tables['ConnectionError'] = 1
+                    else:
+                        error_tables['ConnectionError'] += 1
 
                 # Use same interval as logging to request darksky API
                 if DARK_SKY_WEATHER_API:
