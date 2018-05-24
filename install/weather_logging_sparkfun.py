@@ -203,6 +203,7 @@ while True:
 
             segment.write_display()
             print(error_tables, end='')
+            sys.stdout.flush()
             time.sleep(ALTERNATE_TEMP_SCALE_SECONDS)
 
         if LOGGING:
