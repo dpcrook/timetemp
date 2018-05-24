@@ -4,6 +4,7 @@
 #  - read indoor-located pressure/temperature sensor
 #    - log sensor data to a phant server
 #    - log external temperature data
+from __future__ import print_function
 
 import sys
 import time
@@ -95,8 +96,8 @@ if LOGGING:
     p2 = Phant(jsonPath=json_keys_file2)
 
     print(
-        'Logging sensor measurements taken every {2} seconds to "{0}" every {1} seconds.'
-    ).format(p2.title, FREQUENCY_SECONDS, MEASUREMENT_INTERVAL)
+        'Logging sensor measurements taken every {2} seconds to "{0}" every {1} seconds.'.
+        format(p2.title, FREQUENCY_SECONDS, MEASUREMENT_INTERVAL))
     #print(p2)
 
 # Initialize 'currently'
@@ -176,7 +177,7 @@ while True:
         print("  Pressure: %.1f hPa" % (pressure / 100.0))
         print("  Altitude: %.1f m" % altitude)
         print("Press CTRL+C to exit")
-        print("")
+        #print("")
 
         for temp_where in ['outdoor', 'sensor', 'nest']:
 
@@ -201,7 +202,7 @@ while True:
                                                       'sensor')
 
             segment.write_display()
-
+            print(error_tables, end='')
             time.sleep(ALTERNATE_TEMP_SCALE_SECONDS)
 
         if LOGGING:
@@ -229,15 +230,26 @@ while True:
                         error_tables['ValueError'] += 1
                 # raise ConnectionError(e, request=request)
 #requests.exceptions.ConnectionError: HTTPSConnectionPool(host='data.crookster.org', port=443): Max retries exceeded with url: /input/zb40GXNBOoCZwyvyGX6vS4NBago.json?tf=67.46&private_key=5qmAlvwLb3UXZM5M0DL5HdamVxn&alt=1470.383813622594&pres=848.65&tc=19.7 (Caused by NewConnectionError('<requests.packages.urllib3.connection.VerifiedHTTPSConnection object at 0xb63b7310>: Failed to establish a new connection: [Errno -3] Temporary failure in name resolution',))
-                except requests.exceptions.ConnectionError as e:
-                    print('-E- Error connecting to server for {}'.format(
-                        p2.title))
-                    print(e)
+                except requests.exceptions.ConnectionError as errc:
+                    print("Error Connecting:", errc)
                     print('-W- Is network down?')
                     if 'ConnectionError' not in error_tables:
                         error_tables['ConnectionError'] = 1
                     else:
                         error_tables['ConnectionError'] += 1
+                except requests.exceptions.Timeout as errt:
+                    print("Timeout Error:", errt)
+                    if 'Timeout' not in error_tables:
+                        error_tables['Timeout'] = 1
+                    else:
+                        error_tables['Timeout'] += 1
+
+                except requests.exceptions.RequestException as err:
+                    print("Network request Error:", err)
+                    if 'RequestError' not in error_tables:
+                        error_tables['RequestError'] = 1
+                    else:
+                        error_tables['RequestError'] += 1
 
                 # Use same interval as logging to request darksky API
                 if DARK_SKY_WEATHER_API:
