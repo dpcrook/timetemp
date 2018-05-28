@@ -157,13 +157,27 @@ def display_temperature_in_fahrenheit(led_display, temperature, where):
 
 
 print('Press Ctrl-C to quit.')
+ERROR_TABLES = {}
+
+
+def log_error(error_type='UnknownError'):
+    global ERROR_TABLES
+
+    if error_type not in ERROR_TABLES:
+        ERROR_TABLES[error_type] = 1
+    else:
+        ERROR_TABLES[error_type] = ERROR_TABLES[error_type] + 1
+
+
+def print_error_tables():
+    global ERROR_TABLES
+
+    print(ERROR_TABLES, end='')
+    sys.stdout.flush()
+
 
 while True:
-
-    error_tables = {}
-
     try:
-
         # Attempt to get sensor readings.
         temp = bmp.read_temperature()
         pressure = bmp.read_pressure()
@@ -200,10 +214,8 @@ while True:
                 else:
                     display_temperature_in_fahrenheit(segment, temp_in_F,
                                                       'sensor')
-
             segment.write_display()
-            print(error_tables, end='')
-            sys.stdout.flush()
+            print_error_tables()
             time.sleep(ALTERNATE_TEMP_SCALE_SECONDS)
 
         if LOGGING:
@@ -222,35 +234,24 @@ while True:
                            ambient_temp_F)
                     print('Wrote a row to {0}'.format(p2.title))
                     print((p2.remaining_bytes, p2.cap))
-                except ValueError:
+                except ValueError as errv:
                     print('-E- Error logging to {}'.format(p2.title))
                     print('-W- Is phant server down?')
-                    if 'ValueError' not in error_tables:
-                        error_tables['ValueError'] = 1
-                    else:
-                        error_tables['ValueError'] += 1
+                    print('ValueError: {}'.format(errv.value))
+                    log_error(error_type='ValueError')
                 # raise ConnectionError(e, request=request)
 #requests.exceptions.ConnectionError: HTTPSConnectionPool(host='data.crookster.org', port=443): Max retries exceeded with url: /input/zb40GXNBOoCZwyvyGX6vS4NBago.json?tf=67.46&private_key=5qmAlvwLb3UXZM5M0DL5HdamVxn&alt=1470.383813622594&pres=848.65&tc=19.7 (Caused by NewConnectionError('<requests.packages.urllib3.connection.VerifiedHTTPSConnection object at 0xb63b7310>: Failed to establish a new connection: [Errno -3] Temporary failure in name resolution',))
                 except requests.exceptions.ConnectionError as errc:
                     print("Error Connecting:", errc)
                     print('-W- Is network down?')
-                    if 'ConnectionError' not in error_tables:
-                        error_tables['ConnectionError'] = 1
-                    else:
-                        error_tables['ConnectionError'] += 1
+                    log_error(error_type='ConnectionError')
                 except requests.exceptions.Timeout as errt:
                     print("Timeout Error:", errt)
-                    if 'Timeout' not in error_tables:
-                        error_tables['Timeout'] = 1
-                    else:
-                        error_tables['Timeout'] += 1
+                    log_error(error_type='Timeout')
 
                 except requests.exceptions.RequestException as err:
                     print("Network request Error:", err)
-                    if 'RequestError' not in error_tables:
-                        error_tables['RequestError'] = 1
-                    else:
-                        error_tables['RequestError'] += 1
+                    log_error(error_type='RequestError')
 
                 # Use same interval as logging to request darksky API
                 if DARK_SKY_WEATHER_API:
@@ -291,32 +292,23 @@ while True:
     except KeyboardInterrupt:
         segment.clear()
         segment.write_display()
-        if 'KI' not in error_tables:
-            error_tables['KI'] = 1
-        else:
-            error_tables['KI'] += 1
-        print(error_tables)
+        log_error(error_type='KeyboardInterrupt')
+        print_error_tables()
         sys.exit(0)
 
     except ssl.SSLError:
         # we had a network issue, try again later
-        if 'ssl.SSLError' not in error_tables:
-            error_tables['ssl.SSLError'] = 1
-        else:
-            error_tables['ssl.SSLError'] += 1
+        log_error(error_type='ssl.SSLError')
         segment.clear()
         segment.write_display()
-        print(error_tables)
+        print_error_tables()
 
-#    except:
-#        print "unhandled exception, skipping"
-#        if 'Unhandled' not in error_tables:
-#            error_tables['Unhandled'] = 1
-#        else:
-#            error_tables['Unhandled'] += 1
-#        print error_tables
+# except:
+#     print("unhandled exception, skipping")
+#     log_error(error_type='Unhandled'))
+#     print_error_tables()
 
     finally:
         segment.clear()
         segment.write_display()
-        print(error_tables)
+        print_error_tables()
