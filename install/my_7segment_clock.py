@@ -17,11 +17,15 @@ import sys
 # Set to 12 or 24 hour mode
 HOUR_MODE_12_OR_24 = 12
 
-segment = SevenSegment.SevenSegment(address=0x70)
-#segment = SevenSegment.SevenSegment(address=0x71)
+LED_SEGMENT_I2C_ADDRESS = 0x70
+#LED_SEGMENT_I2C_ADDRESS = 0x71
+
+segment = SevenSegment.SevenSegment(address=LED_SEGMENT_I2C_ADDRESS)
 
 # Initialize the display. Must be called once before using the display.
 segment.begin()
+
+print "Using I2C address: 0x%02x" % (LED_SEGMENT_I2C_ADDRESS, )
 
 #print "Press CTRL+Z to exit"
 print "Press CTRL+C to exit"
