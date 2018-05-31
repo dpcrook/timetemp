@@ -4,12 +4,13 @@
 ## Build the required modules
 
 ```
+sudo apt-get install -y git build-essential python-dev
 git clone https://github.com/idcrook/timetemp.git
 cd timetemp
 
 # so we can build Python extensions
 sudo apt-get update
-sudo apt-get install build-essential python-dev
+sudo apt-get install -y build-essential python-dev python-pip python3-dev python3-pip
 
 # get these too
 sudo apt-get install python-smbus python-imaging
@@ -29,6 +30,8 @@ cd python-phant/
 sudo python setup.py install
 cd ..
 
+
+sudo apt-get install python-pip python3-pip
 sudo pip install --upgrade pip
 
 # https://github.com/ZeevG/python-forecast.io for Dark Sky API
