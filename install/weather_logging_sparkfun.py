@@ -12,6 +12,7 @@ import time
 import json
 from pprint import pprint
 import ssl
+import requests  # so can handle exceptions
 
 import Adafruit_BMP.BMP085 as BMP085
 from Adafruit_LED_Backpack.SevenSegment import SevenSegment
@@ -241,7 +242,11 @@ while True:
                     log_error(error_type='ValueError')
                 # raise ConnectionError(e, request=request)
 #requests.exceptions.ConnectionError: HTTPSConnectionPool(host='data.crookster.org', port=443): Max retries exceeded with url: /input/zb40GXNBOoCZwyvyGX6vS4NBago.json?tf=67.46&private_key=5qmAlvwLb3UXZM5M0DL5HdamVxn&alt=1470.383813622594&pres=848.65&tc=19.7 (Caused by NewConnectionError('<requests.packages.urllib3.connection.VerifiedHTTPSConnection object at 0xb63b7310>: Failed to establish a new connection: [Errno -3] Temporary failure in name resolution',))
-                except requests.exceptions.ConnectionError as errc:
+                except requests.exceptions.ConnectionError as errec:
+                    print("Error Connecting:", errec)
+                    print('-W- Is network down?')
+                    log_error(error_type='ConnectionError')
+                except ConnectionError as errc:
                     print("Error Connecting:", errc)
                     print('-W- Is network down?')
                     log_error(error_type='ConnectionError')
@@ -265,22 +270,28 @@ while True:
 
                 # Use same interval as logging to request Nest API
                 if NEST_API:
-                    napi = nest.Nest(
-                        client_id=nest_client_id,
-                        client_secret=nest_client_secret,
-                        access_token_cache_file=nest_access_token_cache_file)
-
-                    if napi.authorization_required:
-                        print(
-                            'Authorization required.  Run "python ./nest_access.py"'
+                    try:
+                        napi = nest.Nest(
+                            client_id=nest_client_id,
+                            client_secret=nest_client_secret,
+                            access_token_cache_file=nest_access_token_cache_file
                         )
-                        raise SystemExit
 
-                    for structure in napi.structures:
-                        for device in structure.thermostats:
-                            nest_temperature = device.temperature
-                            print('Nest temperature: {0}'.format(
-                                nest_temperature))
+                        if napi.authorization_required:
+                            print(
+                                'Authorization required.  Run "python ./nest_access.py"'
+                            )
+                            raise SystemExit
+
+                        for structure in napi.structures:
+                            for device in structure.thermostats:
+                                nest_temperature = device.temperature
+                                print('Nest temperature: {0}'.format(
+                                    nest_temperature))
+                    except requests.exceptions.ConnectionError as errec:
+                        print("NEST API: Error Connecting:", errec)
+                        print('-W- Is network down?')
+                        log_error(error_type='NEST API: ConnectionError')
 
             else:
                 print('at {0} seconds out of {1}'.format(
