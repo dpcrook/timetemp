@@ -57,7 +57,10 @@ Requires the components to be hooked up to I2C bus
 sudo python ./my_7segment_clock.py
 
 # temp - requires a json file that has keys in it
-sudo python ./logging_sparkfun.py || date
+#  - nest.json
+#  - data.phant.json
+#  - weather_logging_sparkfun.json 
+sudo python ./weather_logging_sparkfun.py || date
 ```
 
 
