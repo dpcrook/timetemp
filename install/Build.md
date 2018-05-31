@@ -45,6 +45,11 @@ sudo pip install python-nest
 
 ## Test run
 
+```
+sudo raspi-config
+# 5 Interfacing Options -> P5 I2C -> Enable
+```
+
 Requires the components to be hooked up to I2C bus
 
 ```bash
