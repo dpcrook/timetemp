@@ -8,7 +8,7 @@ from __future__ import print_function
 
 import sys
 import time
-import datetime
+# import datetime
 import json
 from pprint import pprint
 import ssl
@@ -237,7 +237,7 @@ while True:
                 except ValueError as errv:
                     print('-E- Error logging to {}'.format(p2.title))
                     print('-W- Is phant server down?')
-                    print('ValueError: {}'.format(errv.value))
+                    print('ValueError: {}'.format(str(errv)))
                     log_error(error_type='ValueError')
                 # raise ConnectionError(e, request=request)
 #requests.exceptions.ConnectionError: HTTPSConnectionPool(host='data.crookster.org', port=443): Max retries exceeded with url: /input/zb40GXNBOoCZwyvyGX6vS4NBago.json?tf=67.46&private_key=5qmAlvwLb3UXZM5M0DL5HdamVxn&alt=1470.383813622594&pres=848.65&tc=19.7 (Caused by NewConnectionError('<requests.packages.urllib3.connection.VerifiedHTTPSConnection object at 0xb63b7310>: Failed to establish a new connection: [Errno -3] Temporary failure in name resolution',))
