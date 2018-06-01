@@ -292,6 +292,9 @@ while True:
                         print("NEST API: Error Connecting:", errec)
                         print('-W- Is network down?')
                         log_error(error_type='NEST API: ConnectionError')
+                    except IndexError as e:
+                        print("NEST API: IndexError:", e)
+                        log_error(error_type='NEST API: IndexError')
 
             else:
                 print('at {0} seconds out of {1}'.format(
