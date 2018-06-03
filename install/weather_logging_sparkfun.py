@@ -242,16 +242,10 @@ while True:
                     print('-W- Is phant server down?')
                     print('ValueError: {}'.format(str(errv)))
                     log_error(error_type='ValueError')
-                # raise ConnectionError(e, request=request)
-#requests.exceptions.ConnectionError: HTTPSConnectionPool(host='data.crookster.org', port=443): Max retries exceeded with url: /input/zb40GXNBOoCZwyvyGX6vS4NBago.json?tf=67.46&private_key=5qmAlvwLb3UXZM5M0DL5HdamVxn&alt=1470.383813622594&pres=848.65&tc=19.7 (Caused by NewConnectionError('<requests.packages.urllib3.connection.VerifiedHTTPSConnection object at 0xb63b7310>: Failed to establish a new connection: [Errno -3] Temporary failure in name resolution',))
                 except requests.exceptions.ConnectionError as errec:
                     print("Error Connecting:", errec)
                     print('-W- Is network down?')
                     log_error(error_type='ConnectionError')
-                # except ConnectionError as errc:
-                #     print("Error Connecting:", errc)
-                #     print('-W- Is network down?')
-                #     log_error(error_type='ConnectionError')
                 except requests.exceptions.Timeout as errt:
                     print("Timeout Error:", errt)
                     log_error(error_type='Timeout')
