@@ -111,18 +111,20 @@ if DARK_SKY_WEATHER_API:
     print(currently.time)
     print(currently.temperature)
 
-# Initialize 'napi' and 'nest_temperature'
+# Initialize 'NAPI' and 'nest_temperature'
+global NAPI
+NAPI = None
 if NEST_API:
-    napi = nest.Nest(
+    NAPI = nest.Nest(
         client_id=nest_client_id,
         client_secret=nest_client_secret,
         access_token_cache_file=nest_access_token_cache_file)
 
-    if napi.authorization_required:
+    if NAPI.authorization_required:
         print('Authorization required.  Run "python ./nest_access.py"')
         raise SystemExit
 
-    for structure in napi.structures:
+    for structure in NAPI.structures:
         print('Structure %s' % structure.name)
         print('    Away: %s' % structure.away)
         print('    Devices:')
@@ -246,10 +248,10 @@ while True:
                     print("Error Connecting:", errec)
                     print('-W- Is network down?')
                     log_error(error_type='ConnectionError')
-                except ConnectionError as errc:
-                    print("Error Connecting:", errc)
-                    print('-W- Is network down?')
-                    log_error(error_type='ConnectionError')
+                # except ConnectionError as errc:
+                #     print("Error Connecting:", errc)
+                #     print('-W- Is network down?')
+                #     log_error(error_type='ConnectionError')
                 except requests.exceptions.Timeout as errt:
                     print("Timeout Error:", errt)
                     log_error(error_type='Timeout')
@@ -271,19 +273,13 @@ while True:
                 # Use same interval as logging to request Nest API
                 if NEST_API:
                     try:
-                        napi = nest.Nest(
-                            client_id=nest_client_id,
-                            client_secret=nest_client_secret,
-                            access_token_cache_file=nest_access_token_cache_file
-                        )
-
-                        if napi.authorization_required:
+                        if NAPI.authorization_required:
                             print(
                                 'Authorization required.  Run "python ./nest_access.py"'
                             )
                             raise SystemExit
 
-                        for structure in napi.structures:
+                        for structure in NAPI.structures:
                             for device in structure.thermostats:
                                 nest_temperature = device.temperature
                                 print('Nest temperature: {0}'.format(
