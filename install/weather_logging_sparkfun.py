@@ -295,6 +295,9 @@ while True:
                     except IndexError as e:
                         print("NEST API: IndexError:", e)
                         log_error(error_type='NEST API: IndexError')
+                    except nest.nest.APIError as errnapi:
+                        print("NEST API: APIError:", errnapi)
+                        log_error(error_type='NEST API: APIError')
 
             else:
                 print('at {0} seconds out of {1}'.format(
