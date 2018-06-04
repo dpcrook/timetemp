@@ -2,6 +2,8 @@
 
 Raspberry Pi powered time and temperature display with cloud logging.
 
+**UPDATED** (03-Jun-2018): Updated to work with latest (version `4.0.1`) python-nest module
+
 **UPDATED** (19-Apr-2018): Added Dark Sky and Nest API support for displaying outdoor and other indoor temperatures.
 
 **UPDATED** (25-Mar-2018): Added most recent code and explicit dependencies as git submodules. See [Build.md](install/Build.md)
