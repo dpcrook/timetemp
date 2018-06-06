@@ -256,8 +256,16 @@ while True:
 
                 # Use same interval as logging to request darksky API
                 if DARK_SKY_WEATHER_API:
-                    forecast = forecastio.load_forecast(secret_key, lat, lng)
-                    currently = forecast.currently()
+                    try:
+                        forecast = forecastio.load_forecast(
+                            secret_key, lat, lng)
+                        currently = forecast.currently()
+                    except requests.exceptions.HTTPError as e:
+                        # Need an 404, 503, 500, 403 etc.
+                        status_code = e.response.status_code
+                        print("HTTPError:", status_code, e)
+                        log_error(error_type='Dark Sky API: HTTPError')
+
                     print("DarkSky API:")
                     if 'X-Forecast-API-Call' in forecast.http_headers:
                         print(forecast.http_headers['X-Forecast-API-Calls'])
