@@ -4,7 +4,7 @@ screen -R
 # time
 
 cd /home/pi/projects/timetemp/install/
-sudo python ./my_7segment_clock.py
+sudo python3 ./my_7segment_clock.py
 
 # temp
 

@@ -7,7 +7,7 @@
 	url = https://github.com/adafruit/Adafruit_Python_LED_Backpack.git
 	branch = master
 [submodule "install/python-phant"]
-	path = install/python-phant
+	path = install/Archive/python-phant
 	url = https://github.com/idcrook/python-phant.git
 	branch = master
 [submodule "install/python3-phant"]

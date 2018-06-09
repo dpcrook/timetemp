@@ -17,7 +17,7 @@ import requests  # so can handle exceptions
 
 import Adafruit_BMP.BMP085 as BMP085
 from Adafruit_LED_Backpack.SevenSegment import SevenSegment
-from phant3 import VERSION
+# from phant3 import VERSION
 from phant3.Phant import Phant
 
 import nest  # https://github.com/jkoelker/python-nest/
@@ -58,7 +58,8 @@ RAW_DIGIT_VALUES = {
 # Read in config file
 with open('weather_logging_config.json') as config_file:
     config = json.loads(config_file.read())
-pprint(config)
+#pprint(config)
+pprint(config["i2c_addresses"])
 
 
 def convert_json_string_to_hexadecimal_value(s):
@@ -92,8 +93,8 @@ bmp = BMP085.BMP085(mode=BMP085.BMP085_HIGHRES, address=bmp_address)
 segment = SevenSegment(address=led_display_address)
 print(segment)
 
-# Read in Phant config
 if LOGGING:
+    # Read in Phant config file
     json_keys_file2 = 'phant-config.json'
     p2 = Phant(jsonPath=json_keys_file2)
 
