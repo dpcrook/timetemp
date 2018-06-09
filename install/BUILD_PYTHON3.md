@@ -10,7 +10,7 @@ cd timetemp
 
 # so we can build Python extensions
 sudo apt-get update
-sudo apt-get install -y build-essential python-dev python-pip python3-dev python3-pip
+sudo apt-get install -y build-essential python3-dev python3-pip
 
 # get these too
 sudo apt-get install python3-smbus python3-pil

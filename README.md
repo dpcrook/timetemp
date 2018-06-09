@@ -2,15 +2,17 @@
 
 Raspberry Pi powered time and temperature display with cloud logging.
 
+**UPDATED** (09-Jun-2018): Cleanup and ported to Python 3. Necessitated creating python3-compatible phant library [idcrook/python3-phant](https://github.com/idcrook/python3-phant). See [BUILD_PYTHON3.md](install/BUILD_PYTHON3.md)
+
 **UPDATED** (03-Jun-2018): Updated to work with latest (version `4.0.1`) python-nest module
 
 **UPDATED** (19-Apr-2018): Added Dark Sky and Nest API support for displaying outdoor and other indoor temperatures.
 
-**UPDATED** (25-Mar-2018): Added most recent code and explicit dependencies as git submodules. See [Build.md](install/Build.md)
+**UPDATED** (25-Mar-2018): Added most recent code and explicit dependencies as git submodules. See [Build.md](install/Archive/BUILD.md)
 
 **UPDATED** (05-Nov-2016): Added pointer to [Porting indoor weather (BMP085) logging project to SFE Phant](http://github.crookster.org/Moving-Indoor-Weather-Logging-To-Phant/) blog entry.
 
-<img src="https://github.com/idcrook/timetemp/raw/master/images/Updated_Final.jpg" alt="Project picture" width="489" height="489" />
+<img src="https://github.com/idcrook/timetemp/raw/master/images/display_in_semi_shroud.jpg" alt="Project picture" width="740" />
 
 This project uses a Raspberry Pi, and some additional electronics (plus an Internet connection) to display time along with temperature. It uses a sensor that can measure temperature and air pressure.
 
@@ -18,7 +20,7 @@ This project uses a Raspberry Pi, and some additional electronics (plus an Inter
 
  - [Fritzing source file](https://github.com/idcrook/timetemp/raw/master/old_src/timetemp_sketch.fzz) ([Fritzing app](http://fritzing.org/home/))
 
-
+<img src="https://github.com/idcrook/timetemp/raw/master/images/backside_of_display_panel.JPG" alt="Backside of displays" width="740" />
 
 
 ## my scripts
