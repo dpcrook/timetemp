@@ -265,7 +265,10 @@ while True:
                         status_code = e.response.status_code
                         print("HTTPError:", status_code, e)
                         log_error(error_type='Dark Sky API: HTTPError')
-
+                    except requests.exceptions.ConnectionError as errec:
+                        print("Dark Sky API: Error Connecting:", errec)
+                        print('-W- Is network down?')
+                        log_error(error_type='Dark Sky API: ConnectionError')
                     print("DarkSky API:")
                     if 'X-Forecast-API-Call' in forecast.http_headers:
                         print(forecast.http_headers['X-Forecast-API-Calls'])
