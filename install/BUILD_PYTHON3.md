@@ -6,7 +6,7 @@
 ```
 # so we can build Python extensions
 sudo apt-get update
-sudo apt-get install -y git build-essential python3-dev python3-pip
+sudo apt-get install -y git build-essential python3-setuptools python3-dev python3-pip
 git clone https://github.com/idcrook/timetemp.git
 cd timetemp
 
