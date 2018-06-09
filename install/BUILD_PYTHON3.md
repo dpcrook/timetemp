@@ -74,6 +74,6 @@ git add Adafruit_Python_BMP
 git submodule add -b master https://github.com/adafruit/Adafruit_Python_LED_Backpack.git
 git add Adafruit_Python_LED_Backpack
 
-git submodule add -b master https://github.com/idcrook/python-phant.git
-git add python-phant
+git submodule add -b master https://github.com/idcrook/python3-phant.git
+git add python3-phant
 ```
