@@ -26,8 +26,7 @@ cd Adafruit_Python_LED_Backpack/
 sudo python3 setup.py install
 cd ..
 
-# FIXME: needs to be ported to python3
-cd python-phant/
+cd python3-phant/
 sudo python3 setup.py install
 cd ..
 
@@ -57,11 +56,11 @@ Requires the components to be hooked up to I2C bus
 # time
 sudo python ./my_7segment_clock.py
 
-# temp - requires a json file that has keys in it
-#  - nest.json
-#  - data.phant.json
-#  - weather_logging_sparkfun.json 
-sudo python ./weather_logging_sparkfun.py || date
+# requires json files with valid keys in them
+#  - nest.json (cached)
+#  - phant-config.json
+#  - weather_logging_config.json
+sudo python ./weather_logging_phant3.py || date
 ```
 
 
