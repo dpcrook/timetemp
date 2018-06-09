@@ -4,13 +4,11 @@
 ## Build the required modules
 
 ```
-sudo apt-get install -y git build-essential python-dev
-git clone https://github.com/idcrook/timetemp.git
-cd timetemp
-
 # so we can build Python extensions
 sudo apt-get update
-sudo apt-get install -y build-essential python3-dev python3-pip
+sudo apt-get install -y git build-essential python3-dev python3-pip
+git clone https://github.com/idcrook/timetemp.git
+cd timetemp
 
 # get these too
 sudo apt-get install python3-smbus python3-pil
@@ -30,27 +28,28 @@ cd python3-phant/
 sudo python3 setup.py install
 cd ..
 
-
-sudo apt-get install python-pip python3-pip
+# Optional
 sudo pip3 install --upgrade pip
 
-# https://github.com/ZeevG/python-forecast.io for Dark Sky API
+# API for Dark Sky
+#     https://github.com/ZeevG/python-forecast.io for Dark Sky API
 sudo pip3 install python-forecastio
 
-# https://github.com/jkoelker/python-nest/ for Nest thermostat
+# API for Nest
+#     https://github.com/jkoelker/python-nest/ for Nest thermostat
 sudo pip3 install python-nest
-
-
 ```
 
 ## Test run
+
+Ensure the I2C bus is enabled
 
 ```
 sudo raspi-config
 # 5 Interfacing Options -> P5 I2C -> Enable
 ```
 
-Requires the components to be hooked up to I2C bus
+Requires the components to be hooked up to I2C bus. I2C addresses are specified in the scripts or in config files.
 
 ```bash
 # time
