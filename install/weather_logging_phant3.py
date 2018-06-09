@@ -17,11 +17,11 @@ import requests  # so can handle exceptions
 
 import Adafruit_BMP.BMP085 as BMP085
 from Adafruit_LED_Backpack.SevenSegment import SevenSegment
-from phant import Phant
-# https://github.com/jkoelker/python-nest/
-import nest
-# https://github.com/ZeevG/python-forecast.io
-import forecastio
+from phant3 import VERSION
+from phant3.Phant import Phant
+
+import nest  # https://github.com/jkoelker/python-nest/
+import forecastio  # https://github.com/ZeevG/python-forecast.io
 
 # Logging sensor readings to Phant
 LOGGING = True
@@ -58,7 +58,7 @@ RAW_DIGIT_VALUES = {
 # Read in config file
 with open('weather_logging_config.json') as config_file:
     config = json.loads(config_file.read())
-#pprint(config)
+pprint(config)
 
 
 def convert_json_string_to_hexadecimal_value(s):
@@ -94,7 +94,7 @@ print(segment)
 
 # Read in Phant config
 if LOGGING:
-    json_keys_file2 = 'data.crookster.org.json'
+    json_keys_file2 = 'phant-config.json'
     p2 = Phant(jsonPath=json_keys_file2)
 
     print(
