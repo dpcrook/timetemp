@@ -91,6 +91,7 @@ bmp = BMP085.BMP085(mode=BMP085.BMP085_HIGHRES, address=bmp_address)
 
 # Initialize a LED display
 segment = SevenSegment(address=led_display_address)
+segment.begin()
 print(segment)
 
 if LOGGING:
