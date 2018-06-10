@@ -10,9 +10,12 @@ sudo apt-get install -y git build-essential python3-setuptools python3-dev pytho
 git clone https://github.com/idcrook/timetemp.git
 cd timetemp
 
+# populate submodules
+git submodule update --init --recursive
+
+
 # get these too
 sudo apt-get install python3-smbus python3-pil
-git submodule update --init --recursive
 
 cd install/
 
@@ -53,13 +56,13 @@ Requires the components to be hooked up to I2C bus. I2C addresses are specified 
 
 ```bash
 # time
-sudo python ./my_7segment_clock.py
+sudo python3 ./my_7segment_clock.py
 
 # requires json files with valid keys in them
 #  - nest.json (cached)
 #  - phant-config.json
 #  - weather_logging_config.json
-sudo python ./weather_logging_phant3.py || date
+sudo python3 ./weather_logging_phant3.py || date
 ```
 
 
