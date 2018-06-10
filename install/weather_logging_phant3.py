@@ -205,7 +205,14 @@ while True:
                                                   temp_where)
             elif temp_where == 'outdoor':
                 if DARK_SKY_WEATHER_API:
-                    outside_temperature = currently.temperature
+                    outside_temperature = 42
+                    try:
+                        outside_temperature = currently.temperature
+                    except forecastio.utils.PropertyUnavailable as e:
+                        print("DarkSky API: Error:", e)
+                        log_error(
+                            error_type='DarkSky API: PropertyUnavailable')
+
                     display_temperature_in_fahrenheit(
                         segment, outside_temperature, temp_where)
                 else:
@@ -274,8 +281,13 @@ while True:
                     print("DarkSky API:")
                     if 'X-Forecast-API-Call' in forecast.http_headers:
                         print(forecast.http_headers['X-Forecast-API-Calls'])
-                    print(currently.time)
-                    print(currently.temperature)
+                    try:
+                        print(currently.time)
+                        print(currently.temperature)
+                    except forecastio.utils.PropertyUnavailable as e:
+                        print("DarkSky API: Error:", e)
+                        log_error(
+                            error_type='DarkSky API: PropertyUnavailable')
 
                 # Use same interval as logging to request Nest API
                 if NEST_API:
