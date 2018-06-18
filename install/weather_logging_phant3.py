@@ -5,7 +5,7 @@
 #    - log sensor data to a phant server
 #    - log external temperature data
 
-#from __future__ import print_function
+# from __future__ import print_function
 
 import sys
 import time
@@ -25,16 +25,16 @@ import forecastio  # https://github.com/ZeevG/python-forecast.io
 
 # Logging sensor readings to Phant
 LOGGING = True
-#LOGGING = False
+# LOGGING = False
 LOGGING_COUNT = 0
 
 # Use Dark Sky API for local weather - https://darksky.net/dev/docs
 DARK_SKY_WEATHER_API = True
-#DARK_SKY_WEATHER_API = False
+# DARK_SKY_WEATHER_API = False
 
 # Use Nest API for another indoor temperature source
 NEST_API = True
-#NEST_API = False
+# NEST_API = False
 
 # How long to wait (in seconds) between logging measurements.
 FREQUENCY_SECONDS = 300
@@ -58,7 +58,7 @@ RAW_DIGIT_VALUES = {
 # Read in config file
 with open('weather_logging_config.json') as config_file:
     config = json.loads(config_file.read())
-#pprint(config)
+# pprint(config)
 pprint(config["i2c_addresses"])
 
 
@@ -67,7 +67,7 @@ def convert_json_string_to_hexadecimal_value(s):
     # TODO: Add error and exception handling
     try:
         value = int(s, 16)
-    except:
+    except e:
         pass
     return value
 
@@ -76,12 +76,12 @@ bmp_address = convert_json_string_to_hexadecimal_value(
     config["i2c_addresses"]["bmp085"])
 led_display_address = convert_json_string_to_hexadecimal_value(
     config["i2c_addresses"]["i2c_led"])
-#print(bmp_address)
-#print(led_display_address)
+# print(bmp_address)
+# print(led_display_address)
 secret_key = config["darksky"]["secret-key"]
 lat = config["darksky"]["lat"]
 lng = config["darksky"]["lng"]
-#print(lat, lng)
+# print(lat, lng)
 nest_client_id = config['timetemp_nest']['client_id']
 nest_client_secret = config['timetemp_nest']['client_secret']
 nest_access_token_cache_file = 'nest.json'
@@ -99,10 +99,10 @@ if LOGGING:
     json_keys_file2 = 'phant-config.json'
     p2 = Phant(jsonPath=json_keys_file2)
 
-    print(
-        'Logging sensor measurements taken every {2} seconds to "{0}" every {1} seconds.'.
-        format(p2.title, FREQUENCY_SECONDS, MEASUREMENT_INTERVAL))
-    #print(p2)
+    print('Logging sensor measurements taken every {2} seconds \
+        to "{0}" every {1} seconds.'.format(p2.title, FREQUENCY_SECONDS,
+                                            MEASUREMENT_INTERVAL))
+    # print(p2)
 
 # Initialize 'currently'
 if DARK_SKY_WEATHER_API:
@@ -197,7 +197,7 @@ while True:
         print("  Pressure: %.1f hPa" % (pressure / 100.0))
         print("  Altitude: %.1f m" % altitude)
         print("Press CTRL+C to exit")
-        #print("")
+        # print("")
 
         for temp_where in ['outdoor', 'sensor', 'nest']:
 
@@ -294,9 +294,8 @@ while True:
                 if NEST_API:
                     try:
                         if NAPI.authorization_required:
-                            print(
-                                'Authorization required.  Run "python ./nest_access.py"'
-                            )
+                            print('Authorization required.  Run \
+                                "python ./nest_access.py"')
                             raise SystemExit
 
                         for structure in NAPI.structures:
