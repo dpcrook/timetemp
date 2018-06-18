@@ -19,7 +19,7 @@ HOUR_MODE_12_OR_24 = 12
 
 # I2C address of display
 LED_SEGMENT_I2C_ADDRESS = 0x70
-#LED_SEGMENT_I2C_ADDRESS = 0x71
+# LED_SEGMENT_I2C_ADDRESS = 0x71
 
 segment = SevenSegment.SevenSegment(address=LED_SEGMENT_I2C_ADDRESS)
 # Initialize display. Must be called once before using the display.
@@ -65,7 +65,7 @@ while (True):
         # update the actual display LEDs.
         segment.write_display()
 
-        # Wait a quarter second (less than 1 second to prevent colon blinking getting$
+        # Wait a quarter second (less than 1 second to prevent colon blinking)
         time.sleep(0.25)
 
     except KeyboardInterrupt:
