@@ -67,7 +67,7 @@ def convert_json_string_to_hexadecimal_value(s):
     # TODO: Add error and exception handling
     try:
         value = int(s, 16)
-    except e:
+    except:
         pass
     return value
 
