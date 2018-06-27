@@ -5,6 +5,7 @@
 # sudo systemctl enable time_display@pi.service
 # sudo systemctl status time_display@pi.service
 # sudo systemctl start  time_display@pi.service
+# screen -D -R -S timesvc
 [Unit]
 Description=Time display (screen session)
 After=network.target time-sync.target
@@ -19,6 +20,7 @@ TimeoutStopSec=5
 StandardOutput=journal+console
 StandardError=journal+console
 SuccessExitStatus=1 SIGKILL
+User=pi
 
 [Install]
 WantedBy=default.target

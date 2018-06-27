@@ -5,6 +5,7 @@
 # sudo systemctl enable temperature_display@pi.service
 # sudo systemctl status temperature_display@pi.service
 # sudo systemctl start  temperature_display@pi.service
+# screen -D -R -S tempsvc
 [Unit]
 Description=Temperature display (screen session)
 After=network.target time-sync.target
@@ -19,6 +20,7 @@ TimeoutStopSec=5
 StandardOutput=journal+console
 StandardError=journal+console
 SuccessExitStatus=1 SIGKILL
+User=pi
 #StandardOutput=inherit
 #StandardError=inherit
 
