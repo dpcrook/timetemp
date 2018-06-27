@@ -12,6 +12,7 @@ import time
 # import datetime
 import json
 from pprint import pprint
+import signal
 import ssl
 import requests  # so can handle exceptions
 
@@ -162,6 +163,7 @@ def display_temperature_in_fahrenheit(led_display, temperature, where):
         segment.set_colon(False)
 
 
+# systemd: time_display.service: State 'stop-sigterm' timed out. Killing.
 print('Press Ctrl-C to quit.')
 ERROR_TABLES = {}
 
@@ -181,6 +183,18 @@ def print_error_tables():
     print(ERROR_TABLES, end='')
     sys.stdout.flush()
 
+
+def handler_stop_signals(signum, frame):
+    segment.clear()
+    segment.write_display()
+    print_error_tables()
+    time.sleep(4)
+    # Raises SystemExit(0):
+    sys.exit(0)
+
+
+signal.signal(signal.SIGINT, handler_stop_signals)
+signal.signal(signal.SIGTERM, handler_stop_signals)
 
 while True:
     try:

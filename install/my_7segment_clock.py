@@ -2,11 +2,10 @@
 
 import time
 import datetime
+import signal
+import sys
 
 from Adafruit_LED_Backpack import SevenSegment
-
-# SIGINT is translated into a KeyboardInterrupt exception # import signal
-import sys
 
 # To run:
 #     sudo python3 ./my_7segment_clock.py
@@ -28,6 +27,19 @@ print("Using I2C address: 0x%02x" % (LED_SEGMENT_I2C_ADDRESS, ))
 print("Press CTRL+C to exit")
 
 io_error_count = 0
+
+
+# systemd: time_display.service: State 'stop-sigterm' timed out. Killing.
+def handler_stop_signals(signum, frame):
+    segment.clear()
+    segment.write_display()
+    time.sleep(4)
+    # Raises SystemExit(0):
+    sys.exit(0)
+
+
+signal.signal(signal.SIGINT, handler_stop_signals)
+signal.signal(signal.SIGTERM, handler_stop_signals)
 
 # Continually update the time on a 4 char, 7-segment display
 while (True):
