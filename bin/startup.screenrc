@@ -2,5 +2,5 @@
 sessionname timetemp
 screen -t time sudo python3 ./my_7segment_clock.py
 screen -t temp sudo python3 ./weather_logging_phant3.py
-screen -Dm -t shell /bin/bash
+screen -t shell /bin/bash
 detach
