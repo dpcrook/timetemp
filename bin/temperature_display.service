@@ -1,11 +1,10 @@
-# mkdir -p ~/.config/systemd/user
 # cd /home/pi/projects/timetemp/bin
-# cp temperature_display.service  ~/.config/systemd/user/
-# chmod 644 ~/.config/systemd/user/temperature_display.service
-# systemctl --user daemon-reload
-# systemctl --user enable temperature_display.service
-# systemctl --user status temperature_display.service
-# systemctl --user start  temperature_display.service
+# sudo cp temperature_display.service  /etc/systemd/system/temperature_display@.service
+# sudo chmod 644 /etc/systemd/system/temperature_display@.service
+# sudo systemctl daemon-reload
+# sudo systemctl enable temperature_display@pi.service
+# sudo systemctl status temperature_display@pi.service
+# sudo systemctl start  temperature_display@pi.service
 [Unit]
 Description=Temperature display (screen session)
 After=network.target time-sync.target
@@ -19,6 +18,7 @@ ExecStop=/usr/bin/screen -S tempsvc -p temperature -X stuff "^C"
 TimeoutStopSec=5
 StandardOutput=journal+console
 StandardError=journal+console
+SuccessExitStatus=1 SIGKILL
 #StandardOutput=inherit
 #StandardError=inherit
 

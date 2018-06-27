@@ -1,30 +1,24 @@
-# mkdir -p ~/.config/systemd/user
 # cd /home/pi/projects/timetemp/bin
-# cp time_display.service  ~/.config/systemd/user/
-# chmod 644 ~/.config/systemd/user/time_display.service
-# systemctl --user daemon-reload
-# systemctl --user enable time_display.service
-# systemctl --user status time_display.service
-# systemctl --user start  time_display.service
+# sudo cp time_display.service  /etc/systemd/system/time_display@.service
+# sudo chmod 644 /etc/systemd/system/time_display@.service
+# sudo systemctl daemon-reload
+# sudo systemctl enable time_display@pi.service
+# sudo systemctl status time_display@pi.service
+# sudo systemctl start  time_display@pi.service
 [Unit]
 Description=Time display (screen session)
 After=network.target time-sync.target
 ConditionPathExists=/home/pi/projects/timetemp/install
 
 [Service]
-#Type=oneshot
 Type=forking
 WorkingDirectory=/home/pi/projects/timetemp/install
-# Absolute path (leading with '/') required
 ExecStart=/usr/bin/screen -dmS timesvc -t time /usr/bin/python3 ./my_7segment_clock.py
 ExecStop=/usr/bin/screen -S timesvc -p time -X stuff "^C"
 TimeoutStopSec=5
-#ExecStop=/usr/bin/screen -S time -p time -X stuff "^C"
-#StandardInput=tty-force
 StandardOutput=journal+console
 StandardError=journal+console
-#RemainAfterExit=true
-#User=pi
+SuccessExitStatus=1 SIGKILL
 
 [Install]
 WantedBy=default.target
