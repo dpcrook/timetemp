@@ -33,7 +33,7 @@ io_error_count = 0
 def handler_stop_signals(signum, frame):
     segment.clear()
     segment.write_display()
-    time.sleep(4)
+    #time.sleep(4)
     # Raises SystemExit(0):
     sys.exit(0)
 
