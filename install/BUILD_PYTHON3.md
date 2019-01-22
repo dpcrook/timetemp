@@ -1,5 +1,6 @@
 # Install these scripts
 
+See the systemd configs in `../bin/` for details on the `systemd` installations' use of GNU `screen` and attaching to the running sessions
 
 ## Build the required modules
 
@@ -41,6 +42,7 @@ sudo pip3 install python-forecastio
 # API for Nest
 #     https://github.com/jkoelker/python-nest/ for Nest thermostat
 sudo pip3 install python-nest
+sudo pip3 install --upgrade python-nest
 ```
 
 ## Test run
