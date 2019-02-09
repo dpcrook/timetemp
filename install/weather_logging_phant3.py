@@ -141,7 +141,13 @@ if NEST_API:
 
 def display_temperature_in_fahrenheit(led_display, temperature, where):
     segment = led_display
-    if round(temperature * 10.0) < 1000.0:
+    if round(temperature * 10.0) >= 1000.0:  # 100 degrees or above (###F)
+        segment.set_digit(0, int(round(temperature) / 100))  # Hundreds
+        segment.set_digit(1, int(round(temperature - 100.0) / 10))  # Tens
+        segment.set_digit(2, int(round(temperature) % 10))  # Ones
+        segment.set_digit(3, 'F')
+        segment.set_colon(False)
+    elif round(temperature * 10.0) >= 100.0:  # 10 to 99 degrees (##°F)
         segment.set_digit(0, int(round(temperature) / 10))  # Tens
         segment.set_digit(1, int(round(temperature) % 10))  # Ones
         if where == 'outdoor':
@@ -155,11 +161,49 @@ def display_temperature_in_fahrenheit(led_display, temperature, where):
             segment.set_digit(3, 'F')
 
         segment.set_colon(False)
-    else:
-        segment.set_digit(0, int(round(temperature) / 100))  # Hundreds
-        segment.set_digit(1, int(round(temperature - 100.0) / 10))  # Tens
-        segment.set_digit(2, int(round(temperature) % 10))  # Ones
+    elif round(temperature * 10.0) >= 0.0:  # 0 to 9 degrees    (_#°F)
+        segment.set_digit(0, ' ')  # Tens
+        segment.set_digit(1, int(round(temperature) % 10))  # Ones
+        if where == 'outdoor':
+            segment.set_digit_raw(2, RAW_DIGIT_VALUES['outdoor_degrees'])
+            segment.set_digit(3, 'F')
+        elif where == 'nest':
+            segment.set_digit_raw(2, RAW_DIGIT_VALUES['°'])
+            segment.set_digit(3, 'F')
+        else:
+            segment.set_digit_raw(2, RAW_DIGIT_VALUES['tickmark'])
+            segment.set_digit(3, 'F')
+
+        segment.set_colon(False)
+    elif round(temperature * 10.0) >= -95.0:  # -9 to 0 degrees (-#°F)
+        segment.set_digit(0, '-')  # Tens
+        segment.set_digit(1, int(round(abs(temperature)) % 10))  # Ones
+        if where == 'outdoor':
+            segment.set_digit_raw(2, RAW_DIGIT_VALUES['outdoor_degrees'])
+            segment.set_digit(3, 'F')
+        elif where == 'nest':
+            segment.set_digit_raw(2, RAW_DIGIT_VALUES['°'])
+            segment.set_digit(3, 'F')
+        else:
+            segment.set_digit_raw(2, RAW_DIGIT_VALUES['tickmark'])
+            segment.set_digit(3, 'F')
+
+        segment.set_colon(False)
+
+    elif round(temperature * 10.0) >= -995.0:  # -99 to -10 degrees (-##F)
+        segment.set_digit(0, '-')  # Tens
+        segment.set_digit(1, int(round(abs(temperature)) / 10))  # Tens
+        segment.set_digit(2, int(round(abs(temperature)) % 10))  # Ones
         segment.set_digit(3, 'F')
+
+        segment.set_colon(False)
+
+    else:  # error (do not expect to reach here)
+        segment.set_digit(1, 'E')
+        segment.set_digit(2, 'E')
+        segment.set_digit(3, 'E')
+        segment.set_digit(4, 'E')
+
         segment.set_colon(False)
 
 
