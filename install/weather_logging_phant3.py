@@ -105,8 +105,9 @@ if LOGGING:
                                             MEASUREMENT_INTERVAL))
     # print(p2)
 
-# Initialize 'currently'
+# Initialize 'currently' and 'outside_temperature'
 if DARK_SKY_WEATHER_API:
+    outside_temperature = 42
     forecast = forecastio.load_forecast(secret_key, lat, lng)
     if 'X-Forecast-API-Calls' in forecast.http_headers:
         print(forecast.http_headers['X-Forecast-API-Calls'], ' API calls')
@@ -147,7 +148,7 @@ def display_temperature_in_fahrenheit(led_display, temperature, where):
         segment.set_digit(2, int(round(temperature) % 10))  # Ones
         segment.set_digit(3, 'F')
         segment.set_colon(False)
-    elif round(temperature * 10.0) >= 100.0:  # 10 to 99 degrees (##°F)
+    elif round(temperature * 10.0) > 95.0:  # 10 to 99 degrees (##°F)
         segment.set_digit(0, int(round(temperature) / 10))  # Tens
         segment.set_digit(1, int(round(temperature) % 10))  # Ones
         if where == 'outdoor':
@@ -161,8 +162,12 @@ def display_temperature_in_fahrenheit(led_display, temperature, where):
             segment.set_digit(3, 'F')
 
         segment.set_colon(False)
-    elif round(temperature * 10.0) >= 0.0:  # 0 to 9 degrees    (_#°F)
-        segment.set_digit(0, ' ')  # Tens
+    elif round(temperature * 10.0) > -5.0:  # -0 to 9 degrees    (_#°F)
+        rounded = int(round(temperature))
+        if rounded == 10:
+            segment.set_digit(0, 1)
+        else:
+            segment.set_digit(0, ' ')  # Tens
         segment.set_digit(1, int(round(temperature) % 10))  # Ones
         if where == 'outdoor':
             segment.set_digit_raw(2, RAW_DIGIT_VALUES['outdoor_degrees'])
@@ -175,8 +180,8 @@ def display_temperature_in_fahrenheit(led_display, temperature, where):
             segment.set_digit(3, 'F')
 
         segment.set_colon(False)
-    elif round(temperature * 10.0) >= -95.0:  # -9 to 0 degrees (-#°F)
-        segment.set_digit(0, '-')  # Tens
+    elif round(temperature * 10.0) > -94.9:  # -9 to 0 degrees (-#°F)
+        segment.set_digit(0, '-')
         segment.set_digit(1, int(round(abs(temperature)) % 10))  # Ones
         if where == 'outdoor':
             segment.set_digit_raw(2, RAW_DIGIT_VALUES['outdoor_degrees'])
@@ -232,7 +237,7 @@ def handler_stop_signals(signum, frame):
     segment.clear()
     segment.write_display()
     print_error_tables()
-    time.sleep(4)
+    ## time.sleep(4)
     # Raises SystemExit(0):
     sys.exit(0)
 
@@ -252,6 +257,8 @@ while True:
         print("BMP Sensor")
         print("  Temp(°C): %.1f°C" % temp)
         print("  Temp(°F): %.1f°F" % temp_in_F)
+        print("  Nest Temp(°F): %.1f°F" % nest_temperature)
+        print("  outside Temp(°F): %.1f°F" % outside_temperature)
         print("  Pressure: %.1f hPa" % (pressure / 100.0))
         print("  Altitude: %.1f m" % altitude)
         print("Press CTRL+C to exit")
