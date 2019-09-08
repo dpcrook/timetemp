@@ -1,8 +1,17 @@
-# Install these scripts
+Install these scripts
+=====================
 
 See the systemd configs in `../bin/` for details on the `systemd` installations' use of GNU `screen` and attaching to the running sessions
 
-## Build the required modules
+To monitor them running, access their `screen` terminals:
+
+```
+screen -D -R -S timesvc
+screen -D -R -S tempsvc
+```
+
+Build the required modules
+--------------------------
 
 ```
 # so we can build Python extensions
@@ -45,7 +54,8 @@ sudo pip3 install python-nest
 sudo pip3 install --upgrade python-nest
 ```
 
-## Test run
+Test run
+--------
 
 Ensure the I2C bus is enabled
 
@@ -67,8 +77,8 @@ sudo python3 ./my_7segment_clock.py
 sudo python3 ./weather_logging_phant3.py || date
 ```
 
-
-## How these were added to git repo
+How these were added to git repo
+--------------------------------
 
 ```
 git submodule add -b master https://github.com/adafruit/Adafruit_Python_BMP.git
