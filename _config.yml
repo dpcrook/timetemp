@@ -15,10 +15,10 @@
 # in the templates via {{ site.myvariable }}.
 title: "TimeTemp"
 email:
-description: >- # this means to ignore newlines until "baseurl:"
-  Write an awesome description for your new site here. You can edit this
-  line in _config.yml. It will appear in your document head meta (for
-  Google search results) and in your feed.xml site description.
+description: >-
+  Time and temperature graphs of phant data using google chart JS
+  libraries. SFE Phant service is no longer in production but docker
+  containers, kubernetes and Raspbery Pi-s can substitute.
 twitter_username: idcrook
 github_username: idcrook
 #minimal_mistakes_skin: default
@@ -87,6 +87,17 @@ footer:
     # - label: "Instagram"
     #   icon: "fab fa-fw fa-instagram"
     #   url: "https://instagram.com/"
+
+# head_scripts:
+#   - https://code.jquery.com/jquery-3.3.1.min.js
+#   - /assets/js/your-custom-head-script.js
+# footer_scripts:
+#   - /assets/js/your-custom-footer-script.js
+after_footer_scripts:
+  # needs to be loaded _after_ jQuery (which is done in main.min.js in footer_scripts)
+  # FIXME: copy jquery-csv to local assets
+  - https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.5/jquery.csv.js
+
 
 defaults:
   # _posts
