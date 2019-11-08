@@ -36,6 +36,14 @@ clone
 
 ```
 git clone --origin mm-github-pages-starter https://github.com/mmistakes/mm-github-pages-starter timetemp_gh-pages
+cd timetemp_gh-pages
+# make edits and commit
+git checkout -b timetemp
+git remote add origin git@github.com:idcrook/timetemp.git
+git remote update
+git merge --allow-unrelated-histories --strategy ours origin/gh-pages
+git checkout origin/gh-pages
+git merge timetemp
 ```
 
 install and run
