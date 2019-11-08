@@ -1,0 +1,81 @@
+<!-- EXAMPLE SCRIPT -->
+<script>
+
+
+ function creata_drawChart(dataQueryStr, divElemName) {
+
+   // Stream public key
+   var public_key = 'zb40GXNBOoCZwyvyGX6vS4NBago';
+   //var public_key = 'o8gab0Q996fNz2lW6gdr';
+
+   var aDrawChart = function drawChart() {
+
+     console.log(dataQueryStr + ' ' + divElemName);
+
+     // JSONP request
+     var jsonData = $.ajax({
+       url: 'https://data.crookster.org/output/' + public_key + '.json' + dataQueryStr,
+       // url: 'https://data.sparkfun.com/output/' + public_key + '.json' + dataQueryStr,
+       //        data: {page: 1},
+       cached: true,
+       dataType: 'jsonp',
+     }).done(function (results) {
+
+       var data = new google.visualization.DataTable();
+
+       data.addColumn('datetime', 'Time');
+       data.addColumn('number', 'Temp (F)');
+       data.addColumn('number', 'Pressure (mm)');
+
+       $.each(results, function (i, row) {
+         data.addRow([
+           (new Date(row.timestamp)),
+           parseFloat(row.tf),
+           parseFloat(row.pres)
+           //parseFloat(row.ambient_temperature_f),
+           //parseFloat(row.ambient_pressure)
+         ]);
+       });
+
+       var options = {
+         title: 'Indoor Weather Station',
+         curveType: 'function',
+         legend: { position: 'bottom' }
+       };
+
+       var materialOptions = {
+         chart: {
+           title: 'Indoor Weather Station',
+           subtitle: 'in living room'
+         },
+
+         // explorer: true,
+
+         width: 900,
+         height: 500,
+         series: {
+           // Gives each series an axis name that matches the Y-axis below.
+           0: {axis: 'Temperature'},
+           1: {axis: 'Pressure'}
+         },
+         axes: {
+           // Adds labels to each axis; they don't have to match the axis names.
+           y: {
+             Temps: {label: 'Temp (F)'},
+             Daylight: {label: 'Ambient Pressure'}
+           }
+         }
+
+       };
+
+       var materialChart = new google.charts.Line($('#' + divElemName).get(0));
+       materialChart.draw(data, materialOptions);
+     });
+   }
+
+   return aDrawChart;
+ }
+
+ google.charts.load('current', {'packages':['line', 'corechart']});
+
+</script>
