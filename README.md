@@ -42,8 +42,9 @@ git checkout -b timetemp
 git remote add origin git@github.com:idcrook/timetemp.git
 git remote update
 git merge --allow-unrelated-histories --strategy ours origin/gh-pages
-git checkout origin/gh-pages
+git checkout origin/gh-pages # detached HEAD
 git merge timetemp
+git checkout -b gh-pages
 ```
 
 install and run
