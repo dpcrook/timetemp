@@ -4,13 +4,13 @@ categories:
   - Chart
 tags:
   - phant
-last_modified_at: 2019-11-10T03:21:09Z
+last_modified_at: 2019-11-10T05:16:33Z
 ---
 
 {% include pi_temp_charts.html %}
 
 <script>
-var drawThisChart = creata_drawChart('?limit=288', 'chart-hourly');
+var drawThisChart = creata_drawChart('?limit=300&sample=2', 'chart-hourly');
 google.charts.setOnLoadCallback(drawThisChart);
 </script>
 
