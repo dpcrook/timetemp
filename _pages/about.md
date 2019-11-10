@@ -29,7 +29,7 @@ On this site, the charts are generated locally on your browser with Google's  [G
    - the bigger systematic impact seems to be the eeprom update for the USB
      - drops another 25°C: 55C -> 30C
 
-![rpif1 sixty day temperature log](/assets/images/sixty_day_rpif1_temp.png)
+![rpif1 sixty day temperature log](/images/sixty_day_rpif1_temp.png)
 
  - GitHub Project
    - [Source and Docs](https://github.com/idcrook/pitempmon) (GitHub repository)
