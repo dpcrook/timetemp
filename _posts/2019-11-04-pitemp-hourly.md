@@ -1,13 +1,13 @@
 ---
-title: "Hourly Temperature and Pressure"
+title: "Hourly rpif1 Temperature"
 categories:
   - Chart
 tags:
   - phant
-last_modified_at: 2019-11-10T03:20:10Z
+last_modified_at: 2019-11-10T03:21:09Z
 ---
 
-{% include temp_pres_charts.html %}
+{% include pi_temp_charts.html %}
 
 <script>
 var drawThisChart = creata_drawChart('?limit=288', 'chart-hourly');

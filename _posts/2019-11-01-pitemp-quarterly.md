@@ -1,20 +1,20 @@
 ---
-title: "Hourly Temperature and Pressure"
+title: "Quarterly rpif1 Temperature"
 categories:
   - Chart
 tags:
   - phant
-last_modified_at: 2019-11-10T03:20:10Z
+last_modified_at: 2019-11-10T03:35:36Z
 ---
 
-{% include temp_pres_charts.html %}
+{% include pi_temp_charts.html %}
 
 <script>
-var drawThisChart = creata_drawChart('?limit=288', 'chart-hourly');
+var drawThisChart = creata_drawChart('?limit=288&sample=90', 'chart-quarterly');
 google.charts.setOnLoadCallback(drawThisChart);
 </script>
 
-<div id="chart-hourly" style="width: 100%;"></div>
+<div id="chart-quarterly" style="width: 100%;"></div>
 <div id="save_png"></div>
 
 

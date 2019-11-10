@@ -1,0 +1,167 @@
+
+<!-- google API loader in _includes/head/custom.html -->
+<script>
+
+ function creata_drawChart(dataQueryStr, divElemName) {
+
+   // Phant Stream public key
+   var public_key = 'zb40GXNBOoCZwyvyGX6vS4NBago';
+
+   // .csv files are smaller than equivalent .json
+   var csvUrl  = 'https://data.crookster.org/output/' + public_key + '.csv' + dataQueryStr;
+   //console.log(csvUrl);
+
+   var aDrawChart = function drawVisualization() {
+     $.ajax({
+       type: "GET",
+       url: csvUrl,
+       dataType: "text",
+       cached: true,
+       success: function(csvString) {
+         //console.log(csvString);
+
+         // transform the CSV string into array of objects
+         var objectData = $.csv.toObjects(csvString, {onParseValue: $.csv.hooks.castToScalar});
+
+         var data = new google.visualization.DataTable();
+         data.addColumn('datetime', 'Time');
+         data.addColumn('number', 'Temperature (°F)');
+         data.addColumn('number', 'Pressure (mm)');
+
+         $.each(objectData, function (i, row) {
+           data.addRow([
+             (new Date(row.timestamp)),
+             parseFloat(row.tf),
+             parseFloat(row.pres),
+           ]);
+         });
+
+         //console.log(data);
+
+         // material options are associated with the Line chart type, but it is
+         // missing API like .getImageURI()
+         var materialChartOptions = {
+           title: 'Indoor Weather Station',
+           subtitle: 'in living room',
+           titleTextStyle : {color: 'grey', fontSize: 16},
+           subtitleTextStyle : {color: 'grey', fontSize: 11},
+           curveType: 'function',
+           width: 716,
+           height: 414,
+           series: {
+             // Gives each series an axis name that matches the Y-axis below.
+             0: {axis: 'Temperature'},
+             1: {axis: 'Pressure'}
+           },
+           // backgroundColor: 'red',
+           axes: {
+             // Adds labels to each axis; they don't have to match the axis names.
+             y: {
+               Temperature: {label: 'Temp (°F)'},
+               Pressure: {label: 'Ambient Pressure'}
+             }
+           },
+           colors:['red','#004411'],
+         };
+
+         // classic options are associated with the LineChart chart type
+         var classicChartOptions = {
+
+           title: 'Indoor Weather Station',
+           // titlePosition: 'in',
+           titleTextStyle : {color: 'grey', fontSize: 16},
+
+           chartArea:{left:'5%',top:'15%',width:'90%',height:'70%'},
+
+           curveType: 'function',
+           legend: {
+             /* position: 'in',
+              * position: 'bottom', */
+             position: 'top',
+             alignment: 'end',
+             /* alignment: 'center', */
+           },
+           dataOpacity: 0.6,
+
+           width: 900,
+           height: 500,
+           series: {
+             // Gives each series an axis name that matches the Y-axis below.
+             0: {color: 'red', targetAxisIndex: 0},
+             1: {color: '#004411', targetAxisIndex: 1}
+           },
+           hAxis: {
+             title: 'Time',
+           },
+
+           // axisTitlesPosition: 'in',
+           // backgroundColor: '#E0E0E0',
+           vAxes: {
+             // Adds titles to each axis
+             0: {title: 'Temp (°F)'},
+             1: {title: 'Ambient Pressure'}
+           },
+           /* crosshair: {
+            *   color: '#000',
+            *   trigger: 'selection'
+            * }, */
+           explorer: {
+             actions: ['dragToZoom', 'rightClickToReset'],
+             axis: 'horizontal',
+           },
+
+           /* trendlines: {
+            *   0: {
+            *     // type: 'linear',
+            *     type: 'polynomial',
+            *     degree: 3,
+            *     color: '#ff3333',
+            *     lineWidth: 3,
+            *     opacity: 0.3,
+            *     // showR2: true,
+            *     // visibleInLegend: true
+            *   },
+            *   1: {
+            *     // type: 'linear',
+            *     type: 'polynomial',
+            *     degree: 3,
+            *     color: 'green',
+            *     lineWidth: 3,
+            *     opacity: 0.3,
+            *     // showR2: true,
+            *     // visibleInLegend: true
+            *   }
+            * }, */
+
+           //colors:['red','#004411'],
+           //theme: 'maximized'
+         };
+
+         var wrapper = new google.visualization.ChartWrapper({
+           chartType: 'LineChart',
+           containerId: divElemName,
+           dataTable: data,
+           //options: google.charts.Line.convertOptions(materialChartOptions)
+           options: classicChartOptions
+         });
+
+         function onReadyChartWrapper() {
+           var chart = wrapper.getChart();
+           /* console.log(chart); */
+           var chartSerialized = chart.getImageURI();
+           /* console.log(chartSerialized); */
+           document.getElementById('save_png').outerHTML = '<a href="' + chartSerialized + '">Download .png</a><span> ("Save Link As")</span>';
+         };
+
+         google.visualization.events.addListener(wrapper, 'ready', onReadyChartWrapper);
+         // google.visualization.events.addListener(wrapper, 'onmouseout', onReadyChartWrapper);
+
+         wrapper.draw();
+
+       }});
+   };
+
+   return aDrawChart;
+ }
+
+</script>

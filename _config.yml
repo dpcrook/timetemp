@@ -61,14 +61,14 @@ plugins:
 author:
   name   : "David Crook"
   avatar : # "/assets/images/bio-photo.jpg"
-  bio    : "TimeTemp charts"
+  bio    : "Temperature charts with data logged using phant"
   links:
     - label: "Website"
       icon: "fas fa-fw fa-link"
       url: "https://github.com/idcrook/timetemp"
-    # - label: "Twitter"
-    #   icon: "fab fa-fw fa-twitter-square"
-    #   url: "https://twitter.com/"
+    - label: "Twitter"
+      icon: "fab fa-fw fa-twitter-square"
+      url: "https://twitter.com/idcrook"
     # - label: "GitHub"
     #   icon: "fab fa-fw fa-github"
     #   url: "https://github.com/"

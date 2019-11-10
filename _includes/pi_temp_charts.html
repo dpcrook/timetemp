@@ -5,11 +5,11 @@
  function creata_drawChart(dataQueryStr, divElemName) {
 
    // Phant Stream public key
-   var public_key = 'zb40GXNBOoCZwyvyGX6vS4NBago';
+   var public_key = '0Q0zv04xKJCyjL1XQkD6TYDG40x';
 
    // .csv files are smaller than equivalent .json
    var csvUrl  = 'https://data.crookster.org/output/' + public_key + '.csv' + dataQueryStr;
-   //console.log(csvUrl);
+   console.log(csvUrl);
 
    var aDrawChart = function drawVisualization() {
      $.ajax({
@@ -18,21 +18,21 @@
        dataType: "text",
        cached: true,
        success: function(csvString) {
-         //console.log(csvString);
+         console.log(csvString);
 
          // transform the CSV string into array of objects
          var objectData = $.csv.toObjects(csvString, {onParseValue: $.csv.hooks.castToScalar});
+         console.log(objectData)
 
          var data = new google.visualization.DataTable();
          data.addColumn('datetime', 'Time');
-         data.addColumn('number', 'Temperature (°F)');
-         data.addColumn('number', 'Pressure (mm)');
+         data.addColumn('number', 'Temperature (°C)');
+         //data.addColumn('number', 'Pressure (mm)');
 
          $.each(objectData, function (i, row) {
            data.addRow([
              (new Date(row.timestamp)),
-             parseFloat(row.tf),
-             parseFloat(row.pres),
+             parseFloat(row.temp_c),
            ]);
          });
 
@@ -41,8 +41,8 @@
          // material options are associated with the Line chart type, but it is
          // missing API like .getImageURI()
          var materialChartOptions = {
-           title: 'Indoor Weather Station',
-           subtitle: 'in living room',
+           title: 'rpif1 Model 4 B',
+           subtitle: 'in basement',
            titleTextStyle : {color: 'grey', fontSize: 16},
            subtitleTextStyle : {color: 'grey', fontSize: 11},
            curveType: 'function',
@@ -51,23 +51,23 @@
            series: {
              // Gives each series an axis name that matches the Y-axis below.
              0: {axis: 'Temperature'},
-             1: {axis: 'Pressure'}
+             /* 1: {axis: 'Pressure'} */
            },
            // backgroundColor: 'red',
            axes: {
              // Adds labels to each axis; they don't have to match the axis names.
              y: {
-               Temperature: {label: 'Temp (°F)'},
-               Pressure: {label: 'Ambient Pressure'}
+               Temperature: {label: 'Temp (°C)'},
+               /* Pressure: {label: 'Ambient Pressure'} */
              }
            },
-           colors:['red','#004411'],
+           // colors:['red','#004411'],
          };
 
          // classic options are associated with the LineChart chart type
          var classicChartOptions = {
 
-           title: 'Indoor Weather Station',
+           title: 'rpif1 Model 4 B',
            // titlePosition: 'in',
            titleTextStyle : {color: 'grey', fontSize: 16},
 
@@ -78,7 +78,8 @@
              /* position: 'in',
               * position: 'bottom', */
              position: 'top',
-             alignment: 'end',
+             alignment: 'start',
+             /* alignment: 'end', */
              /* alignment: 'center', */
            },
            dataOpacity: 0.6,
@@ -87,8 +88,8 @@
            height: 500,
            series: {
              // Gives each series an axis name that matches the Y-axis below.
-             0: {color: 'red', targetAxisIndex: 0},
-             1: {color: '#004411', targetAxisIndex: 1}
+             0: {color: '#c51a4a', targetAxisIndex: 0},
+             /* 1: {color: '#004411', targetAxisIndex: 1} */
            },
            hAxis: {
              title: 'Time',
@@ -99,7 +100,7 @@
            vAxes: {
              // Adds titles to each axis
              0: {title: 'Temp (°F)'},
-             1: {title: 'Ambient Pressure'}
+             /* 1: {title: 'Ambient Pressure'} */
            },
            /* crosshair: {
             *   color: '#000',
@@ -147,9 +148,9 @@
 
          function onReadyChartWrapper() {
            var chart = wrapper.getChart();
-           console.log(chart);
+           //console.log(chart);
            var chartSerialized = chart.getImageURI();
-           console.log(chartSerialized);
+           //console.log(chartSerialized);
            document.getElementById('save_png').outerHTML = '<a href="' + chartSerialized + '">Download .png</a><span> ("Save Link As")</span>';
          };
 
