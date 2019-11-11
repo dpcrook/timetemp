@@ -1,20 +1,20 @@
 ---
-title: "Weekly Temperature and Pressure"
+title: "Monthly Temperature and Pressure"
 categories:
   - Chart
 tags:
   - phant
-last_modified_at: 2019-11-10T03:20:16Z
+last_modified_at: 2019-11-11T05:42:35Z
 ---
 
 {% include temp_pres_charts.html %}
 
 <script>
-var drawThisChart = creata_drawChart('?limit=288&sample=7', 'chart-weekly');
+var drawThisChart = creata_drawChart('?gt[timestamp]=now%20-31%20days&sample=12', 'chart-monthly');
 google.charts.setOnLoadCallback(drawThisChart);
 </script>
 
-<div id="chart-weekly" style="width: 100%;"></div>
+<div id="chart-monthly" style="width: 100%;"></div>
 <div id="save_png"></div>
 
 <!-- Local Variables: -->

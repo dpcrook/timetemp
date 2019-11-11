@@ -1,22 +1,21 @@
 ---
-title: "Hourly Temperature and Pressure"
+title: "Weekly Temperature and Pressure"
 categories:
   - Chart
 tags:
   - phant
-last_modified_at: 2019-11-10T03:20:10Z
+last_modified_at: 2019-11-11T05:43:21Z
 ---
 
 {% include temp_pres_charts.html %}
 
 <script>
-var drawThisChart = creata_drawChart('?limit=288', 'chart-hourly');
+var drawThisChart = creata_drawChart('?gt[timestamp]=now%20-7%20days&sample=5', 'chart-weekly');
 google.charts.setOnLoadCallback(drawThisChart);
 </script>
 
-<div id="chart-hourly" style="width: 100%;"></div>
+<div id="chart-weekly" style="width: 100%;"></div>
 <div id="save_png"></div>
-
 
 <!-- Local Variables: -->
 <!-- time-stamp-pattern: "8/^last_modified_at: %:y-%02m-%02dT%02H:%02M:%02SZ$" -->

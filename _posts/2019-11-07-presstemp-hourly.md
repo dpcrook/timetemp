@@ -1,21 +1,22 @@
 ---
-title: "Monthly Temperature and Pressure"
+title: "Hourly Temperature and Pressure"
 categories:
   - Chart
 tags:
   - phant
-last_modified_at: 2019-11-10T03:14:14Z
+last_modified_at: 2019-11-11T05:38:57Z
 ---
 
 {% include temp_pres_charts.html %}
 
 <script>
-var drawThisChart = creata_drawChart('?limit=288&sample=30', 'chart-monthly');
+var drawThisChart = creata_drawChart('?gt[timestamp]=now%20-24%20hours', 'chart-hourly');
 google.charts.setOnLoadCallback(drawThisChart);
 </script>
 
-<div id="chart-monthly" style="width: 100%;"></div>
+<div id="chart-hourly" style="width: 100%;"></div>
 <div id="save_png"></div>
+
 
 <!-- Local Variables: -->
 <!-- time-stamp-pattern: "8/^last_modified_at: %:y-%02m-%02dT%02H:%02M:%02SZ$" -->
