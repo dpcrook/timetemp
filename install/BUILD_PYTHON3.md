@@ -15,43 +15,50 @@ Build the required modules
 
 ```
 # so we can build Python extensions
-sudo apt-get update
-sudo apt-get install -y git build-essential python3-setuptools python3-dev python3-pip
+sudo apt update
+sudo apt install -y git build-essential python3-setuptools python3-dev python3-pip python3-venv python3-wheel
 git clone https://github.com/idcrook/timetemp.git
 cd timetemp
 
 # populate submodules
 git submodule update --init --recursive
 
-
 # get these too
-sudo apt-get install python3-smbus python3-pil
+sudo apt install python3-smbus python3-pil
 
 cd install/
 
+python3 -m venv env
+source env/bin/activate
+
 cd Adafruit_Python_BMP/
-sudo python3 setup.py install
+python setup.py install
 cd ..
 
 cd Adafruit_Python_LED_Backpack/
-sudo python3 setup.py install
+python setup.py install
 cd ..
 
 cd python3-phant/
-sudo python3 setup.py install
+python setup.py install
 cd ..
 
 # Optional
-sudo pip3 install --upgrade pip
+pip install --upgrade pip
 
 # API for Dark Sky
 #     https://github.com/ZeevG/python-forecast.io for Dark Sky API
-sudo pip3 install python-forecastio
+pip install python-forecastio
+
+# API for Open Weather Map
+#     https://github.com/csparpa/pyowm
+pip install pyowm
 
 # API for Nest
 #     https://github.com/jkoelker/python-nest/ for Nest thermostat
-sudo pip3 install python-nest
-sudo pip3 install --upgrade python-nest
+pip install python-nest
+#pip install --upgrade python-nest
+
 ```
 
 Test run
@@ -68,13 +75,13 @@ Requires the components to be hooked up to I2C bus. I2C addresses are specified 
 
 ```bash
 # time
-sudo python3 ./my_7segment_clock.py
+python ./my_7segment_clock.py
 
 # requires json files with valid keys in them
 #  - nest.json (cached)
 #  - phant-config.json
 #  - weather_logging_config.json
-sudo python3 ./weather_logging_phant3.py || date
+python ./weather_logging_phant3.py || date
 ```
 
 How these were added to git repo
