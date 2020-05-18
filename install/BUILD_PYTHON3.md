@@ -17,6 +17,9 @@ Build the required modules
 # so we can build Python extensions
 sudo apt update
 sudo apt install -y git build-essential python3-setuptools python3-dev python3-pip python3-venv python3-wheel
+
+mkdir -p ~/projects/
+cd ~/projects/
 git clone https://github.com/idcrook/timetemp.git
 cd timetemp
 
@@ -28,6 +31,7 @@ sudo apt install python3-smbus python3-pil
 
 cd install/
 
+# make and enter python3 virtual env
 python3 -m venv env
 source env/bin/activate
 
@@ -53,12 +57,14 @@ pip install python-forecastio
 # API for Open Weather Map
 #     https://github.com/csparpa/pyowm
 pip install pyowm
+# 2020-05-17: to access OneCall API
+pip install geojson # silent pre-req
+pip install git+https://github.com/csparpa/pyowm.git@develop
+
 
 # API for Nest
 #     https://github.com/jkoelker/python-nest/ for Nest thermostat
 pip install python-nest
-#pip install --upgrade python-nest
-
 ```
 
 Test run
