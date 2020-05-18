@@ -27,8 +27,8 @@ from pyowm.owm import OWM  # https://github.com/csparpa/pyowm
 import forecastio  # https://github.com/ZeevG/python-forecast.io
 
 # Logging sensor readings to Phant
-# LOGGING = True
-LOGGING = False
+LOGGING = True
+# LOGGING = False
 LOGGING_COUNT = 0
 
 # Use Dark Sky API for local weather - https://darksky.net/dev/docs
@@ -71,7 +71,6 @@ pprint(config["i2c_addresses"])
 
 def convert_json_string_to_hexadecimal_value(s):
     value = 0
-    # TODO: Add error and exception handling
     try:
         value = int(s, 16)
     except:
@@ -281,13 +280,13 @@ while True:
 
         temp_in_F = (temp * 9.0 / 5.0) + 32.0
 
-        print("BMP Sensor")
-        print("  Temp(°C): %.1f°C" % temp)
-        print("  Temp(°F): %.1f°F" % temp_in_F)
-        print("  Nest Temp(°F): %.1f°F" % nest_temperature)
-        print("  outside Temp(°F): %.1f°F" % outside_temperature)
-        print("  Pressure: %.1f hPa" % (pressure / 100.0))
+        print("\nBMP Sensor", end=" ")
+        print("  Temp(°C): %.1f°C" % temp, end=" ")
+        print("  Temp(°F): %.1f°F" % temp_in_F, end=" ")
+        print("  Pressure: %.1f hPa" % (pressure / 100.0), end=" ")
         print("  Altitude: %.1f m" % altitude)
+        print("  Nest Temp(°F): %.1f°F" % nest_temperature, end=" ")
+        print("  outside Temp(°F): %.1f°F" % outside_temperature)
         print("Press CTRL+C to exit")
         # print("")
 
@@ -340,32 +339,14 @@ while True:
 
             ambient_temp_C = temp
             ambient_temp_F = temp_in_F
+
             ambient_pressure = pressure / 100.0
 
-            fields = (ambient_pressure, ambient_temp_C, ambient_temp_F, altitude)
-            print(fields)
+            if False:
+                fields = (ambient_pressure, ambient_temp_C, ambient_temp_F, altitude)
+                print(fields)
 
             if (LOGGING_COUNT % COUNT_INTERVAL) == 0:
-                try:
-                    p2.log(altitude, ambient_pressure, ambient_temp_C, ambient_temp_F)
-                    print('Wrote a row to {0}'.format(p2.title))
-                    print((p2.remaining_bytes, p2.cap))
-                except ValueError as errv:
-                    print('-E- Error logging to {}'.format(p2.title))
-                    print('-W- Is phant server down?')
-                    print('ValueError: {}'.format(str(errv)))
-                    log_error(error_type='ValueError')
-                except requests.exceptions.ConnectionError as errec:
-                    print("Error Connecting:", errec)
-                    print('-W- Is network down?')
-                    log_error(error_type='ConnectionError')
-                except requests.exceptions.Timeout as errt:
-                    print("Timeout Error:", errt)
-                    log_error(error_type='Timeout')
-
-                except requests.exceptions.RequestException as err:
-                    print("Network request Error:", err)
-                    log_error(error_type='RequestError')
 
                 # Use same interval as logging to request darksky API
                 if DARK_SKY_WEATHER_API:
@@ -393,9 +374,10 @@ while True:
                         print("DarkSky API: Error:", e)
                         log_error(error_type='DarkSky API: PropertyUnavailable')
 
+                # Use same interval as logging to request OMW API
                 if OWM_API:
                     try:
-                        one_call = mgr.one_call(omw_lat, omw_lng)
+                        one_call = mgr.one_call(owm_lat, owm_lon)
                         currently = one_call.current
                     except requests.exceptions.HTTPError as e:
                         # Need an 404, 503, 500, 403 etc.
@@ -440,6 +422,77 @@ while True:
                     except nest.nest.APIError as errnapi:
                         print("NEST API: APIError:", errnapi)
                         log_error(error_type='NEST API: APIError')
+
+                # the following are only available in the OWM API
+                cloudiness = currently.clouds  # percent
+                cond = currently.status
+                cond_desc = currently.detailed_status
+                dew_point = currently.dewpoint
+                dt = currently.ref_time
+                in_humid = 0
+                in_pres = ambient_pressure
+                in_tc = ambient_temp_C
+                in_tf = ambient_temp_F
+                out_feels_like = currently.temperature(unit='fahrenheit')['feels_like']
+                out_humid = currently.humidity
+                out_pres = currently.pressure['press']
+                out_temp = currently.temperature(unit='fahrenheit')['temp']
+                uvi = currently.uvi
+                weather_code = currently.weather_code
+                weather_icon_name = currently.weather_icon_name
+                wind = currently.wind(unit='miles_hour')
+                wind_deg = wind['deg']
+                wind_speed = wind['speed']
+
+                try:
+                    if False:
+                        p2.log(
+                            altitude, ambient_pressure, ambient_temp_C, ambient_temp_F
+                        )
+                    else:
+                        # cloudiness cond cond_desc dew_point dt in_humid
+                        # in_pres in_tc in_tf out_feels_like out_humid out_pres
+                        # out_temp uvi weather_code weather_icon_name wind_deg
+                        # wind_speed
+                        p2.log(
+                            cloudiness,
+                            cond,
+                            cond_desc,
+                            dew_point,
+                            dt,
+                            in_humid,
+                            in_pres,
+                            in_tc,
+                            in_tf,
+                            out_feels_like,
+                            out_humid,
+                            out_pres,
+                            out_temp,
+                            uvi,
+                            weather_code,
+                            weather_icon_name,
+                            wind_deg,
+                            wind_speed,
+                        )
+
+                    print('Wrote a row to {0}'.format(p2.title))
+                    print((p2.remaining_bytes, p2.cap))
+                except ValueError as errv:
+                    print('-E- Error logging to {}'.format(p2.title))
+                    print('-W- Is phant server down?')
+                    print('ValueError: {}'.format(str(errv)))
+                    log_error(error_type='ValueError')
+                except requests.exceptions.ConnectionError as errec:
+                    print("Error Connecting:", errec)
+                    print('-W- Is network down?')
+                    log_error(error_type='ConnectionError')
+                except requests.exceptions.Timeout as errt:
+                    print("Timeout Error:", errt)
+                    log_error(error_type='Timeout')
+
+                except requests.exceptions.RequestException as err:
+                    print("Network request Error:", err)
+                    log_error(error_type='RequestError')
 
             else:
                 print(

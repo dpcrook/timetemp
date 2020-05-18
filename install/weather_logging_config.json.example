@@ -10,6 +10,12 @@
     "lat":  45.0000,
     "lng": -100.0000
   },
+  "owm":
+  {
+    "secret-key": "abcd",
+    "lat":  45.0000,
+    "lon": -100.0000
+  },
   "timetemp_nest":
   {
     "client_id": "d-e-4f-i",
