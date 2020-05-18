@@ -5,7 +5,7 @@
  function creata_drawChart(dataQueryStr, divElemName) {
 
    // Phant Stream public key
-   var public_key = 'zb40GXNBOoCZwyvyGX6vS4NBago';
+   var public_key = 'bWbZXWMNmgCgqdzvOyG3FylZZe6';
 
    // .csv files are smaller than equivalent .json
    var csvUrl  = 'https://data.crookster.org/output/' + public_key + '.csv' + dataQueryStr;
@@ -145,8 +145,8 @@
          $.each(objectData, function (i, row) {
            data.addRow([
              (new Date(row.timestamp)),
-             parseFloat(row.tf),
-             parseFloat(row.pres),
+             parseFloat(row.in_tf),
+             parseFloat(row.in_pres),
            ]);
          });
 
