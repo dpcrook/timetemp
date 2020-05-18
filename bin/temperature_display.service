@@ -14,7 +14,7 @@ ConditionPathExists=/home/pi/projects/timetemp/bin
 [Service]
 Type=forking
 WorkingDirectory=/home/pi/projects/timetemp/install
-ExecStart=/usr/bin/screen -dmS tempsvc -t temperature /usr/bin/python3 ./weather_logging_phant3.py
+ExecStart=/usr/bin/screen -dmS tempsvc -t temperature env/bin/python ./weather_logging_phant3.py
 ExecStop=/usr/bin/screen -S tempsvc -p temperature -X stuff "^C"
 TimeoutStopSec=5
 StandardOutput=journal+console

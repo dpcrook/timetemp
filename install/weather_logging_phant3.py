@@ -3,12 +3,11 @@
 
 #  - read indoor-located pressure/temperature sensor
 #    - log sensor data to a phant server
-#    - log external temperature data
-
-# from __future__ import print_function
+#    - log external weather data (read from Web API)
 
 import sys
 import time
+
 # import datetime
 import json
 from pprint import pprint
@@ -18,10 +17,13 @@ import requests  # so can handle exceptions
 
 import Adafruit_BMP.BMP085 as BMP085
 from Adafruit_LED_Backpack.SevenSegment import SevenSegment
+
 # from phant3 import VERSION
 from phant3.Phant import Phant
 
 import nest  # https://github.com/jkoelker/python-nest/
+from pyowm.owm import OWM  # https://github.com/csparpa/pyowm
+
 import forecastio  # https://github.com/ZeevG/python-forecast.io
 
 # Logging sensor readings to Phant
@@ -30,8 +32,12 @@ LOGGING = True
 LOGGING_COUNT = 0
 
 # Use Dark Sky API for local weather - https://darksky.net/dev/docs
-DARK_SKY_WEATHER_API = True
-# DARK_SKY_WEATHER_API = False
+# DARK_SKY_WEATHER_API = True
+DARK_SKY_WEATHER_API = False
+
+# Use Open Weather Map API for local weather - https://openweathermap.org/api https://openweathermap.org/api/one-call-api
+OWM_API = True
+# OWM_API = False
 
 # Use Nest API for another indoor temperature source
 NEST_API = True
@@ -52,7 +58,7 @@ COUNT_INTERVAL = FREQUENCY_SECONDS / MEASUREMENT_INTERVAL
 # Additional characters for 7 segment display
 RAW_DIGIT_VALUES = {
     'tickmark': 0x02,
-    'outdoor_degrees': 0x6b,
+    'outdoor_degrees': 0x6B,
     '°': 0x63,
 }
 
@@ -65,7 +71,6 @@ pprint(config["i2c_addresses"])
 
 def convert_json_string_to_hexadecimal_value(s):
     value = 0
-    # TODO: Add error and exception handling
     try:
         value = int(s, 16)
     except:
@@ -74,15 +79,21 @@ def convert_json_string_to_hexadecimal_value(s):
 
 
 bmp_address = convert_json_string_to_hexadecimal_value(
-    config["i2c_addresses"]["bmp085"])
+    config["i2c_addresses"]["bmp085"]
+)
 led_display_address = convert_json_string_to_hexadecimal_value(
-    config["i2c_addresses"]["i2c_led"])
+    config["i2c_addresses"]["i2c_led"]
+)
 # print(bmp_address)
 # print(led_display_address)
-secret_key = config["darksky"]["secret-key"]
-lat = config["darksky"]["lat"]
-lng = config["darksky"]["lng"]
-# print(lat, lng)
+darksky_secret_key = config["darksky"]["secret-key"]
+darksky_lat = config["darksky"]["lat"]
+darksky_lng = config["darksky"]["lng"]
+# print(darksky_lat, darksky_lng)
+owm_secret_key = config["owm"]["secret-key"]
+owm_lat = config["owm"]["lat"]
+owm_lon = config["owm"]["lon"]
+
 nest_client_id = config['timetemp_nest']['client_id']
 nest_client_secret = config['timetemp_nest']['client_secret']
 nest_access_token_cache_file = 'nest.json'
@@ -100,21 +111,35 @@ if LOGGING:
     json_keys_file2 = 'phant-config.json'
     p2 = Phant(jsonPath=json_keys_file2)
 
-    print('Logging sensor measurements taken every {2} seconds \
-        to "{0}" every {1} seconds.'.format(p2.title, FREQUENCY_SECONDS,
-                                            MEASUREMENT_INTERVAL))
+    print(
+        'Logging sensor measurements taken every {2} seconds \
+        to "{0}" every {1} seconds.'.format(
+            p2.title, FREQUENCY_SECONDS, MEASUREMENT_INTERVAL
+        )
+    )
     # print(p2)
 
 # Initialize 'currently' and 'outside_temperature'
 if DARK_SKY_WEATHER_API:
     outside_temperature = 42
-    forecast = forecastio.load_forecast(secret_key, lat, lng)
+    forecast = forecastio.load_forecast(darksky_secret_key, darksky_lat, darksky_lng)
     if 'X-Forecast-API-Calls' in forecast.http_headers:
         print(forecast.http_headers['X-Forecast-API-Calls'], ' API calls')
     currently = forecast.currently()
     print(currently.summary)
     print(currently.time)
     print(currently.temperature)
+
+if OWM_API:
+    outside_temperature = 42
+    owm = OWM(owm_secret_key)
+    mgr = owm.weather_manager()
+    one_call = mgr.one_call(owm_lat, owm_lon)
+    currently = one_call.current
+    print(currently.status)
+    print(currently.detailed_status)
+    print(currently.reference_time())
+    print(currently.temperature(unit='fahrenheit'))
 
 # Initialize 'NAPI' and 'nest_temperature'
 global NAPI
@@ -123,7 +148,8 @@ if NEST_API:
     NAPI = nest.Nest(
         client_id=nest_client_id,
         client_secret=nest_client_secret,
-        access_token_cache_file=nest_access_token_cache_file)
+        access_token_cache_file=nest_access_token_cache_file,
+    )
 
     if NAPI.authorization_required:
         print('Authorization required.  Run "python ./nest_access.py"')
@@ -254,21 +280,20 @@ while True:
 
         temp_in_F = (temp * 9.0 / 5.0) + 32.0
 
-        print("BMP Sensor")
-        print("  Temp(°C): %.1f°C" % temp)
-        print("  Temp(°F): %.1f°F" % temp_in_F)
-        print("  Nest Temp(°F): %.1f°F" % nest_temperature)
-        print("  outside Temp(°F): %.1f°F" % outside_temperature)
-        print("  Pressure: %.1f hPa" % (pressure / 100.0))
+        print("\nBMP Sensor", end=" ")
+        print("  Temp(°C): %.1f°C" % temp, end=" ")
+        print("  Temp(°F): %.1f°F" % temp_in_F, end=" ")
+        print("  Pressure: %.1f hPa" % (pressure / 100.0), end=" ")
         print("  Altitude: %.1f m" % altitude)
+        print("  Nest Temp(°F): %.1f°F" % nest_temperature, end=" ")
+        print("  outside Temp(°F): %.1f°F" % outside_temperature)
         print("Press CTRL+C to exit")
         # print("")
 
         for temp_where in ['outdoor', 'sensor', 'nest']:
 
             if temp_where == 'sensor':
-                display_temperature_in_fahrenheit(segment, temp_in_F,
-                                                  temp_where)
+                display_temperature_in_fahrenheit(segment, temp_in_F, temp_where)
             elif temp_where == 'outdoor':
                 if DARK_SKY_WEATHER_API:
                     outside_temperature = 42
@@ -276,22 +301,36 @@ while True:
                         outside_temperature = currently.temperature
                     except forecastio.utils.PropertyUnavailable as e:
                         print("DarkSky API: Error:", e)
-                        log_error(
-                            error_type='DarkSky API: PropertyUnavailable')
+                        log_error(error_type='DarkSky API: PropertyUnavailable')
 
                     display_temperature_in_fahrenheit(
-                        segment, outside_temperature, temp_where)
+                        segment, outside_temperature, temp_where
+                    )
                 else:
-                    display_temperature_in_fahrenheit(segment, temp_in_F,
-                                                      'sensor')
+                    display_temperature_in_fahrenheit(segment, temp_in_F, 'sensor')
+                if OWM_API:
+                    outside_temperature = 42
+                    try:
+                        outside_temperature = currently.temperature(unit='fahrenheit')[
+                            'temp'
+                        ]
+                    except:
+                        print("Unexpected error:", sys.exc_info()[0])
+                        raise
+
+                    display_temperature_in_fahrenheit(
+                        segment, outside_temperature, temp_where
+                    )
+                else:
+                    display_temperature_in_fahrenheit(segment, temp_in_F, 'sensor')
             elif temp_where == 'nest':
                 if NEST_API:
                     indoor_temperature = nest_temperature
                     display_temperature_in_fahrenheit(
-                        segment, indoor_temperature, temp_where)
+                        segment, indoor_temperature, temp_where
+                    )
                 else:
-                    display_temperature_in_fahrenheit(segment, temp_in_F,
-                                                      'sensor')
+                    display_temperature_in_fahrenheit(segment, temp_in_F, 'sensor')
             segment.write_display()
             print_error_tables()
             time.sleep(ALTERNATE_TEMP_SCALE_SECONDS)
@@ -300,16 +339,142 @@ while True:
 
             ambient_temp_C = temp
             ambient_temp_F = temp_in_F
+
             ambient_pressure = pressure / 100.0
 
-            fields = (ambient_pressure, ambient_temp_C, ambient_temp_F,
-                      altitude)
-            print(fields)
+            if False:
+                fields = (ambient_pressure, ambient_temp_C, ambient_temp_F, altitude)
+                print(fields)
 
             if (LOGGING_COUNT % COUNT_INTERVAL) == 0:
+
+                # Use same interval as logging to request darksky API
+                if DARK_SKY_WEATHER_API:
+                    try:
+                        forecast = forecastio.load_forecast(
+                            darksky_secret_key, darksky_lat, darksky_lng
+                        )
+                        currently = forecast.currently()
+                    except requests.exceptions.HTTPError as e:
+                        # Need an 404, 503, 500, 403 etc.
+                        status_code = e.response.status_code
+                        print("HTTPError:", status_code, e)
+                        log_error(error_type='Dark Sky API: HTTPError')
+                    except requests.exceptions.ConnectionError as errec:
+                        print("Dark Sky API: Error Connecting:", errec)
+                        print('-W- Is network down?')
+                        log_error(error_type='Dark Sky API: ConnectionError')
+                    print("DarkSky API:")
+                    if 'X-Forecast-API-Call' in forecast.http_headers:
+                        print(forecast.http_headers['X-Forecast-API-Calls'])
+                    try:
+                        print(currently.time)
+                        print(currently.temperature)
+                    except forecastio.utils.PropertyUnavailable as e:
+                        print("DarkSky API: Error:", e)
+                        log_error(error_type='DarkSky API: PropertyUnavailable')
+
+                # Use same interval as logging to request OMW API
+                if OWM_API:
+                    try:
+                        one_call = mgr.one_call(owm_lat, owm_lon)
+                        currently = one_call.current
+                    except requests.exceptions.HTTPError as e:
+                        # Need an 404, 503, 500, 403 etc.
+                        status_code = e.response.status_code
+                        print("HTTPError:", status_code, e)
+                        log_error(error_type='OWM API: HTTPError')
+                    except requests.exceptions.ConnectionError as errec:
+                        print("OWM API: Error Connecting:", errec)
+                        print('-W- Is network down?')
+                        log_error(error_type='OWM API: ConnectionError')
+                    print("OWM API:")
+                    try:
+                        print(currently.ref_time)
+                        print(currently.temperature(unit='fahrenheit'))
+                    except:
+                        print("OWM: Error:")
+                        # print("OWM: Error:", e)
+                        log_error(error_type='OWM API: Exception')
+                        raise
+
+                # Use same interval as logging to request Nest API
+                if NEST_API:
+                    try:
+                        if NAPI.authorization_required:
+                            print(
+                                'Authorization required.  Run \
+                                "python ./nest_access.py"'
+                            )
+                            raise SystemExit
+
+                        for structure in NAPI.structures:
+                            for device in structure.thermostats:
+                                nest_temperature = device.temperature
+                                print('Nest temperature: {0}'.format(nest_temperature))
+                    except requests.exceptions.ConnectionError as errec:
+                        print("NEST API: Error Connecting:", errec)
+                        print('-W- Is network down?')
+                        log_error(error_type='NEST API: ConnectionError')
+                    except IndexError as e:
+                        print("NEST API: IndexError:", e)
+                        log_error(error_type='NEST API: IndexError')
+                    except nest.nest.APIError as errnapi:
+                        print("NEST API: APIError:", errnapi)
+                        log_error(error_type='NEST API: APIError')
+
+                # the following are only available in the OWM API
+                cloudiness = currently.clouds  # percent
+                cond = currently.status
+                cond_desc = currently.detailed_status
+                dew_point = currently.dewpoint
+                dt = currently.ref_time
+                in_humid = 0
+                in_pres = ambient_pressure
+                in_tc = ambient_temp_C
+                in_tf = ambient_temp_F
+                out_feels_like = currently.temperature(unit='fahrenheit')['feels_like']
+                out_humid = currently.humidity
+                out_pres = currently.pressure['press']
+                out_temp = currently.temperature(unit='fahrenheit')['temp']
+                uvi = currently.uvi
+                weather_code = currently.weather_code
+                weather_icon_name = currently.weather_icon_name
+                wind = currently.wind(unit='miles_hour')
+                wind_deg = wind['deg']
+                wind_speed = wind['speed']
+
                 try:
-                    p2.log(altitude, ambient_pressure, ambient_temp_C,
-                           ambient_temp_F)
+                    if False:
+                        p2.log(
+                            altitude, ambient_pressure, ambient_temp_C, ambient_temp_F
+                        )
+                    else:
+                        # cloudiness cond cond_desc dew_point dt in_humid
+                        # in_pres in_tc in_tf out_feels_like out_humid out_pres
+                        # out_temp uvi weather_code weather_icon_name wind_deg
+                        # wind_speed
+                        p2.log(
+                            cloudiness,
+                            cond,
+                            cond_desc,
+                            dew_point,
+                            dt,
+                            in_humid,
+                            in_pres,
+                            in_tc,
+                            in_tf,
+                            out_feels_like,
+                            out_humid,
+                            out_pres,
+                            out_temp,
+                            uvi,
+                            weather_code,
+                            weather_icon_name,
+                            wind_deg,
+                            wind_speed,
+                        )
+
                     print('Wrote a row to {0}'.format(p2.title))
                     print((p2.remaining_bytes, p2.cap))
                 except ValueError as errv:
@@ -329,60 +494,13 @@ while True:
                     print("Network request Error:", err)
                     log_error(error_type='RequestError')
 
-                # Use same interval as logging to request darksky API
-                if DARK_SKY_WEATHER_API:
-                    try:
-                        forecast = forecastio.load_forecast(
-                            secret_key, lat, lng)
-                        currently = forecast.currently()
-                    except requests.exceptions.HTTPError as e:
-                        # Need an 404, 503, 500, 403 etc.
-                        status_code = e.response.status_code
-                        print("HTTPError:", status_code, e)
-                        log_error(error_type='Dark Sky API: HTTPError')
-                    except requests.exceptions.ConnectionError as errec:
-                        print("Dark Sky API: Error Connecting:", errec)
-                        print('-W- Is network down?')
-                        log_error(error_type='Dark Sky API: ConnectionError')
-                    print("DarkSky API:")
-                    if 'X-Forecast-API-Call' in forecast.http_headers:
-                        print(forecast.http_headers['X-Forecast-API-Calls'])
-                    try:
-                        print(currently.time)
-                        print(currently.temperature)
-                    except forecastio.utils.PropertyUnavailable as e:
-                        print("DarkSky API: Error:", e)
-                        log_error(
-                            error_type='DarkSky API: PropertyUnavailable')
-
-                # Use same interval as logging to request Nest API
-                if NEST_API:
-                    try:
-                        if NAPI.authorization_required:
-                            print('Authorization required.  Run \
-                                "python ./nest_access.py"')
-                            raise SystemExit
-
-                        for structure in NAPI.structures:
-                            for device in structure.thermostats:
-                                nest_temperature = device.temperature
-                                print('Nest temperature: {0}'.format(
-                                    nest_temperature))
-                    except requests.exceptions.ConnectionError as errec:
-                        print("NEST API: Error Connecting:", errec)
-                        print('-W- Is network down?')
-                        log_error(error_type='NEST API: ConnectionError')
-                    except IndexError as e:
-                        print("NEST API: IndexError:", e)
-                        log_error(error_type='NEST API: IndexError')
-                    except nest.nest.APIError as errnapi:
-                        print("NEST API: APIError:", errnapi)
-                        log_error(error_type='NEST API: APIError')
-
             else:
-                print('at {0} seconds out of {1}'.format(
-                    (LOGGING_COUNT * MEASUREMENT_INTERVAL) % FREQUENCY_SECONDS,
-                    FREQUENCY_SECONDS))
+                print(
+                    'at {0} seconds out of {1}'.format(
+                        (LOGGING_COUNT * MEASUREMENT_INTERVAL) % FREQUENCY_SECONDS,
+                        FREQUENCY_SECONDS,
+                    )
+                )
 
         LOGGING_COUNT = LOGGING_COUNT + 1
 
@@ -400,10 +518,10 @@ while True:
         segment.write_display()
         print_error_tables()
 
-# except:
-#     print("unhandled exception, skipping")
-#     log_error(error_type='Unhandled'))
-#     print_error_tables()
+    # except:
+    #     print("unhandled exception, skipping")
+    #     log_error(error_type='Unhandled'))
+    #     print_error_tables()
 
     finally:
         segment.clear()

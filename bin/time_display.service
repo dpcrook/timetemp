@@ -14,7 +14,7 @@ ConditionPathExists=/home/pi/projects/timetemp/install
 [Service]
 Type=forking
 WorkingDirectory=/home/pi/projects/timetemp/install
-ExecStart=/usr/bin/screen -dmS timesvc -t time /usr/bin/python3 ./my_7segment_clock.py
+ExecStart=/usr/bin/screen -dmS timesvc -t time env/bin/python ./my_7segment_clock.py
 ExecStop=/usr/bin/screen -S timesvc -p time -X stuff "^C"
 TimeoutStopSec=5
 StandardOutput=journal+console
