@@ -315,7 +315,7 @@ while True:
                             'temp'
                         ]
                     except:
-                        print("Unexpected error:", sys.exc_info()[0])
+                        print("OWM: Unexpected error:", sys.exc_info()[0])
                         raise
 
                     display_temperature_in_fahrenheit(
@@ -388,13 +388,16 @@ while True:
                         print("OWM API: Error Connecting:", errec)
                         print('-W- Is network down?')
                         log_error(error_type='OWM API: ConnectionError')
+                    except pyowm.commons.exceptions.APIRequestError as errapi:
+                        print("OWM API Error:", errapi)
+                        log_error(error_type='OWM API: APIRequestError')
                     print("OWM API:")
                     try:
                         print(currently.ref_time)
                         print(currently.temperature(unit='fahrenheit'))
                     except:
                         print("OWM: Error:")
-                        # print("OWM: Error:", e)
+                        print("Unexpected error:", sys.exc_info()[0])
                         log_error(error_type='OWM API: Exception')
                         raise
 
