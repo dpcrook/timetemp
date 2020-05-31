@@ -12,8 +12,11 @@ import time
 import json
 from pprint import pprint
 import signal
+
+from socket import error as SocketError  # for error handling
 import ssl
 import requests  # so can handle exceptions
+import urllib3
 
 import Adafruit_BMP.BMP085 as BMP085
 from Adafruit_LED_Backpack.SevenSegment import SevenSegment
@@ -22,7 +25,10 @@ from Adafruit_LED_Backpack.SevenSegment import SevenSegment
 from phant3.Phant import Phant
 
 import nest  # https://github.com/jkoelker/python-nest/
+import pyowm
 from pyowm.owm import OWM  # https://github.com/csparpa/pyowm
+
+# from pyowm.commons import exceptions
 
 import forecastio  # https://github.com/ZeevG/python-forecast.io
 
@@ -65,7 +71,7 @@ RAW_DIGIT_VALUES = {
 # Read in config file
 with open('weather_logging_config.json') as config_file:
     config = json.loads(config_file.read())
-# pprint(config)
+    # pprint(config)
 pprint(config["i2c_addresses"])
 
 
@@ -125,45 +131,78 @@ if DARK_SKY_WEATHER_API:
     forecast = forecastio.load_forecast(darksky_secret_key, darksky_lat, darksky_lng)
     if 'X-Forecast-API-Calls' in forecast.http_headers:
         print(forecast.http_headers['X-Forecast-API-Calls'], ' API calls')
-    currently = forecast.currently()
-    print(currently.summary)
-    print(currently.time)
-    print(currently.temperature)
+        currently = forecast.currently()
+        print(currently.summary)
+        print(currently.time)
+        print(currently.temperature)
 
 if OWM_API:
     outside_temperature = 42
     owm = OWM(owm_secret_key)
     mgr = owm.weather_manager()
-    one_call = mgr.one_call(owm_lat, owm_lon)
-    currently = one_call.current
-    print(currently.status)
-    print(currently.detailed_status)
-    print(currently.reference_time())
-    print(currently.temperature(unit='fahrenheit'))
+    currently = None
+    try:
+        one_call = mgr.one_call(owm_lat, owm_lon)
+        currently = one_call.current
+        print(currently.status)
+        print(currently.detailed_status)
+        print(currently.reference_time())
+        print(currently.temperature(unit='fahrenheit'))
+    except requests.exceptions.ConnectionError as errec:
+        print("OWM API: Error Connecting:", errec)
+        print('-W- Is network down?')
+        # log_error(error_type='OWM API: ConnectionError')
+        # except SocketError as errsock:
+        #     print("OWM API Error:", errsock)
+        #     print('-W- Is network down?')
+        # except urllib3.exceptions.MaxRetryError as errul3:
+        #     print("OWM API Error:", errul3)
+        #     print('-W- Is network down?')
+        # except urllib3.exceptions.NewConnectionError as errul3nc:
+        #     print("OWM related Error:", errul3nc)
+        #     print('-W- Is network down?')
+        #     # do not log # log_error(error_type='OWM API: MaxRetryError')
+    except pyowm.commons.exceptions.APIRequestError as errapi:
+        print("OWM API Error:", errapi)
+        # log_error(error_type='OWM API: APIRequestError')
+    finally:
+        # disable API if a network error encountered
+        if not currently:
+            OWM_API = False
 
 # Initialize 'NAPI' and 'nest_temperature'
 global NAPI
 NAPI = None
 if NEST_API:
+    nest_temperature = 40.0
     NAPI = nest.Nest(
         client_id=nest_client_id,
         client_secret=nest_client_secret,
         access_token_cache_file=nest_access_token_cache_file,
     )
 
-    if NAPI.authorization_required:
-        print('Authorization required.  Run "python ./nest_access.py"')
-        raise SystemExit
+    try:
+        if NAPI.authorization_required:
+            print('Authorization required.  Run "python ./nest_access.py"')
+            raise SystemExit
 
-    for structure in NAPI.structures:
-        print('Structure %s' % structure.name)
-        print('    Away: %s' % structure.away)
-        print('    Devices:')
+        for structure in NAPI.structures:
+            print('Structure %s' % structure.name)
+            print('    Away: %s' % structure.away)
+            print('    Devices:')
 
-        for device in structure.thermostats:
-            print('        Device: %s' % device.name)
-            print('            Temp: %0.1f' % device.temperature)
-            nest_temperature = device.temperature
+            for device in structure.thermostats:
+                print('        Device: %s' % device.name)
+                print('            Temp: %0.1f' % device.temperature)
+                nest_temperature = device.temperature
+    except requests.exceptions.ConnectionError as errec:
+        print("Nest API: Error Connecting:", errec)
+        print('-W- Is network down?')
+        # log_error(error_type='OWM API: ConnectionError')
+    finally:
+        # disable API if a network error encountered
+        if nest_temperature == 40.0:
+            NEST_API = False
 
 
 def display_temperature_in_fahrenheit(led_display, temperature, where):
@@ -194,7 +233,7 @@ def display_temperature_in_fahrenheit(led_display, temperature, where):
             segment.set_digit(0, 1)
         else:
             segment.set_digit(0, ' ')  # Tens
-        segment.set_digit(1, int(round(temperature) % 10))  # Ones
+            segment.set_digit(1, int(round(temperature) % 10))  # Ones
         if where == 'outdoor':
             segment.set_digit_raw(2, RAW_DIGIT_VALUES['outdoor_degrees'])
             segment.set_digit(3, 'F')
@@ -331,9 +370,9 @@ while True:
                     )
                 else:
                     display_temperature_in_fahrenheit(segment, temp_in_F, 'sensor')
-            segment.write_display()
-            print_error_tables()
-            time.sleep(ALTERNATE_TEMP_SCALE_SECONDS)
+                    segment.write_display()
+                    print_error_tables()
+                    time.sleep(ALTERNATE_TEMP_SCALE_SECONDS)
 
         if LOGGING:
 
@@ -364,7 +403,7 @@ while True:
                         print("Dark Sky API: Error Connecting:", errec)
                         print('-W- Is network down?')
                         log_error(error_type='Dark Sky API: ConnectionError')
-                    print("DarkSky API:")
+                        print("DarkSky API:")
                     if 'X-Forecast-API-Call' in forecast.http_headers:
                         print(forecast.http_headers['X-Forecast-API-Calls'])
                     try:
@@ -388,10 +427,21 @@ while True:
                         print("OWM API: Error Connecting:", errec)
                         print('-W- Is network down?')
                         log_error(error_type='OWM API: ConnectionError')
+                    except SocketError as errsock:
+                        print("OWM API Error:", errsock)
+                        print('-W- Is network down?')
+                        # do not log # log_error(error_type='OWM API: SocketError')
+                    except urllib3.exceptions.MaxRetryError as errul3:
+                        print("OWM related Error:", errul3)
+                        print('-W- Is network down?')
+                        # do not log # log_error(error_type='OWM API: MaxRetryError')
+                    except urllib3.exceptions.NewConnectionError as errul3nc:
+                        print("OWM related Error:", errul3nc)
+                        print('-W- Is network down?')
+                        # do not log # log_error(error_type='OWM API: MaxRetryError')
                     except pyowm.commons.exceptions.APIRequestError as errapi:
                         print("OWM API Error:", errapi)
                         log_error(error_type='OWM API: APIRequestError')
-                    print("OWM API:")
                     try:
                         print(currently.ref_time)
                         print(currently.temperature(unit='fahrenheit'))
@@ -426,26 +476,29 @@ while True:
                         print("NEST API: APIError:", errnapi)
                         log_error(error_type='NEST API: APIError')
 
-                # the following are only available in the OWM API
-                cloudiness = currently.clouds  # percent
-                cond = currently.status
-                cond_desc = currently.detailed_status
-                dew_point = currently.dewpoint
-                dt = currently.ref_time
-                in_humid = 0
-                in_pres = ambient_pressure
-                in_tc = ambient_temp_C
-                in_tf = ambient_temp_F
-                out_feels_like = currently.temperature(unit='fahrenheit')['feels_like']
-                out_humid = currently.humidity
-                out_pres = currently.pressure['press']
-                out_temp = currently.temperature(unit='fahrenheit')['temp']
-                uvi = currently.uvi
-                weather_code = currently.weather_code
-                weather_icon_name = currently.weather_icon_name
-                wind = currently.wind(unit='miles_hour')
-                wind_deg = wind['deg']
-                wind_speed = wind['speed']
+                if OWM_API:
+                    # the following are only available in the OWM API
+                    cloudiness = currently.clouds  # percent
+                    cond = currently.status
+                    cond_desc = currently.detailed_status
+                    dew_point = currently.dewpoint
+                    dt = currently.ref_time
+                    in_humid = 0
+                    in_pres = ambient_pressure
+                    in_tc = ambient_temp_C
+                    in_tf = ambient_temp_F
+                    out_feels_like = currently.temperature(unit='fahrenheit')[
+                        'feels_like'
+                    ]
+                    out_humid = currently.humidity
+                    out_pres = currently.pressure['press']
+                    out_temp = currently.temperature(unit='fahrenheit')['temp']
+                    uvi = currently.uvi
+                    weather_code = currently.weather_code
+                    weather_icon_name = currently.weather_icon_name
+                    wind = currently.wind(unit='miles_hour')
+                    wind_deg = wind['deg']
+                    wind_speed = wind['speed']
 
                 try:
                     if False:
@@ -453,30 +506,32 @@ while True:
                             altitude, ambient_pressure, ambient_temp_C, ambient_temp_F
                         )
                     else:
-                        # cloudiness cond cond_desc dew_point dt in_humid
-                        # in_pres in_tc in_tf out_feels_like out_humid out_pres
-                        # out_temp uvi weather_code weather_icon_name wind_deg
-                        # wind_speed
-                        p2.log(
-                            cloudiness,
-                            cond,
-                            cond_desc,
-                            dew_point,
-                            dt,
-                            in_humid,
-                            in_pres,
-                            in_tc,
-                            in_tf,
-                            out_feels_like,
-                            out_humid,
-                            out_pres,
-                            out_temp,
-                            uvi,
-                            weather_code,
-                            weather_icon_name,
-                            wind_deg,
-                            wind_speed,
-                        )
+                        # only try to log if Weather API enabled
+                        if OWM_API:
+                            # cloudiness cond cond_desc dew_point dt in_humid
+                            # in_pres in_tc in_tf out_feels_like out_humid out_pres
+                            # out_temp uvi weather_code weather_icon_name wind_deg
+                            # wind_speed
+                            p2.log(
+                                cloudiness,
+                                cond,
+                                cond_desc,
+                                dew_point,
+                                dt,
+                                in_humid,
+                                in_pres,
+                                in_tc,
+                                in_tf,
+                                out_feels_like,
+                                out_humid,
+                                out_pres,
+                                out_temp,
+                                uvi,
+                                weather_code,
+                                weather_icon_name,
+                                wind_deg,
+                                wind_speed,
+                            )
 
                     print('Wrote a row to {0}'.format(p2.title))
                     print((p2.remaining_bytes, p2.cap))
