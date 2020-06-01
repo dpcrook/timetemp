@@ -23,6 +23,7 @@ from phant3.Phant import Phant
 
 import nest  # https://github.com/jkoelker/python-nest/
 from pyowm.owm import OWM  # https://github.com/csparpa/pyowm
+from pyowm.commons import exceptions as OwmExceptions
 
 import forecastio  # https://github.com/ZeevG/python-forecast.io
 
@@ -134,37 +135,55 @@ if OWM_API:
     outside_temperature = 42
     owm = OWM(owm_secret_key)
     mgr = owm.weather_manager()
-    one_call = mgr.one_call(owm_lat, owm_lon)
-    currently = one_call.current
-    print(currently.status)
-    print(currently.detailed_status)
-    print(currently.reference_time())
-    print(currently.temperature(unit='fahrenheit'))
+    try:
+        one_call = mgr.one_call(owm_lat, owm_lon)
+        currently = one_call.current
+        print(currently.status)
+        print(currently.detailed_status)
+        print(currently.reference_time())
+        print(currently.temperature(unit='fahrenheit'))
+    except requests.exceptions.ConnectionError as errec:
+        print("OWM API: Error Connecting:", errec)
+        print('-W- Is network down?')
+    except OwmExceptions.APIRequestError as errapi:
+        print("OWM API Error:", errapi)
+    finally:
+        # disable API if a network error encountered
+        if not currently:
+            OWM_API = False
 
 # Initialize 'NAPI' and 'nest_temperature'
 global NAPI
 NAPI = None
 if NEST_API:
+    nest_temperature = 35.0
     NAPI = nest.Nest(
         client_id=nest_client_id,
         client_secret=nest_client_secret,
         access_token_cache_file=nest_access_token_cache_file,
     )
+    try:
+        if NAPI.authorization_required:
+            print('Authorization required.  Run "python ./nest_access.py"')
+            raise SystemExit
 
-    if NAPI.authorization_required:
-        print('Authorization required.  Run "python ./nest_access.py"')
-        raise SystemExit
+        for structure in NAPI.structures:
+            print('Structure %s' % structure.name)
+            print('    Away: %s' % structure.away)
+            print('    Devices:')
 
-    for structure in NAPI.structures:
-        print('Structure %s' % structure.name)
-        print('    Away: %s' % structure.away)
-        print('    Devices:')
-
-        for device in structure.thermostats:
-            print('        Device: %s' % device.name)
-            print('            Temp: %0.1f' % device.temperature)
-            nest_temperature = device.temperature
-
+            for device in structure.thermostats:
+                print('        Device: %s' % device.name)
+                print('            Temp: %0.1f' % device.temperature)
+                nest_temperature = device.temperature
+    except requests.exceptions.ConnectionError as errec:
+        print("Nest API: Error Connecting:", errec)
+        print('-W- Is network down?')
+        # log_error(error_type='OWM API: ConnectionError')
+    finally:
+        # disable API if a network error encountered
+        if nest_temperature == 35.0:
+            NEST_API = False
 
 def display_temperature_in_fahrenheit(led_display, temperature, where):
     segment = led_display
@@ -388,10 +407,10 @@ while True:
                         print("OWM API: Error Connecting:", errec)
                         print('-W- Is network down?')
                         log_error(error_type='OWM API: ConnectionError')
-                    except pyowm.commons.exceptions.APIRequestError as errapi:
+                    except OwmExceptions.APIRequestError as errapi:
                         print("OWM API Error:", errapi)
                         log_error(error_type='OWM API: APIRequestError')
-                    print("OWM API:")
+                    print("OWM API:", end="  ")
                     try:
                         print(currently.ref_time)
                         print(currently.temperature(unit='fahrenheit'))
