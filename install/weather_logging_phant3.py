@@ -27,6 +27,7 @@ from phant3.Phant import Phant
 import nest  # https://github.com/jkoelker/python-nest/
 import pyowm
 from pyowm.owm import OWM  # https://github.com/csparpa/pyowm
+from pyowm.commons import exceptions as OwmExceptions
 
 # from pyowm.commons import exceptions
 
@@ -151,20 +152,8 @@ if OWM_API:
     except requests.exceptions.ConnectionError as errec:
         print("OWM API: Error Connecting:", errec)
         print('-W- Is network down?')
-        # log_error(error_type='OWM API: ConnectionError')
-        # except SocketError as errsock:
-        #     print("OWM API Error:", errsock)
-        #     print('-W- Is network down?')
-        # except urllib3.exceptions.MaxRetryError as errul3:
-        #     print("OWM API Error:", errul3)
-        #     print('-W- Is network down?')
-        # except urllib3.exceptions.NewConnectionError as errul3nc:
-        #     print("OWM related Error:", errul3nc)
-        #     print('-W- Is network down?')
-        #     # do not log # log_error(error_type='OWM API: MaxRetryError')
-    except pyowm.commons.exceptions.APIRequestError as errapi:
+    except OwmExceptions.APIRequestError as errapi:
         print("OWM API Error:", errapi)
-        # log_error(error_type='OWM API: APIRequestError')
     finally:
         # disable API if a network error encountered
         if not currently:
@@ -174,13 +163,12 @@ if OWM_API:
 global NAPI
 NAPI = None
 if NEST_API:
-    nest_temperature = 40.0
+    nest_temperature = 35.0
     NAPI = nest.Nest(
         client_id=nest_client_id,
         client_secret=nest_client_secret,
         access_token_cache_file=nest_access_token_cache_file,
     )
-
     try:
         if NAPI.authorization_required:
             print('Authorization required.  Run "python ./nest_access.py"')
@@ -201,7 +189,7 @@ if NEST_API:
         # log_error(error_type='OWM API: ConnectionError')
     finally:
         # disable API if a network error encountered
-        if nest_temperature == 40.0:
+        if nest_temperature == 35.0:
             NEST_API = False
 
 
@@ -427,21 +415,10 @@ while True:
                         print("OWM API: Error Connecting:", errec)
                         print('-W- Is network down?')
                         log_error(error_type='OWM API: ConnectionError')
-                    except SocketError as errsock:
-                        print("OWM API Error:", errsock)
-                        print('-W- Is network down?')
-                        # do not log # log_error(error_type='OWM API: SocketError')
-                    except urllib3.exceptions.MaxRetryError as errul3:
-                        print("OWM related Error:", errul3)
-                        print('-W- Is network down?')
-                        # do not log # log_error(error_type='OWM API: MaxRetryError')
-                    except urllib3.exceptions.NewConnectionError as errul3nc:
-                        print("OWM related Error:", errul3nc)
-                        print('-W- Is network down?')
-                        # do not log # log_error(error_type='OWM API: MaxRetryError')
-                    except pyowm.commons.exceptions.APIRequestError as errapi:
+                    except OwmExceptions.APIRequestError as errapi:
                         print("OWM API Error:", errapi)
                         log_error(error_type='OWM API: APIRequestError')
+                    print("OWM API:", end="  ")
                     try:
                         print(currently.ref_time)
                         print(currently.temperature(unit='fahrenheit'))
