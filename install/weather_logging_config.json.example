@@ -1,24 +1,20 @@
 {
-  "i2c_addresses":
-  {
-    "bmp085": "0x77",
-    "i2c_led": "0x70"
+  "timetemp_nest": {
+    "client_secret": "yturkd7",
+    "client_id": "d-e-4f-i"
   },
-  "darksky":
-  {
-    "secret-key": "abcd",
-    "lat":  45.0000,
-    "lng": -100.0000
+  "owm": {
+    "lon": -100.0,
+    "lat": 45.0,
+    "secret-key": "abcd"
   },
-  "owm":
-  {
-    "secret-key": "abcd",
-    "lat":  45.0000,
-    "lon": -100.0000
+  "darksky": {
+    "lng": -100.0,
+    "lat": 45.0,
+    "secret-key": "abcd"
   },
-  "timetemp_nest":
-  {
-    "client_id": "d-e-4f-i",
-    "client_secret": "yturkd7"
+  "i2c_addresses": {
+    "i2c_led": "0x70",
+    "bmp085": "0x77"
   }
 }
