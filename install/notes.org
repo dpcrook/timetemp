@@ -21,8 +21,13 @@
     - [ ] ... only if information source is enabled
   - [ ] finally: clause in loop (for exit)
 
+** system-related
+
+- [ ] systemd installer
+- [ ] requirements / dependency management installer
 
 ** functions
+
 - [ ] display_temperature_in_fahrenheit()
 - [ ] log_error()
 - [ ] Signal, Keyboardinterrupt handler
